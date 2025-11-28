@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Property - TDT Tax Collector</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">Sarasota County Tax Collector</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/properties.html" class="active">Properties</a>
+                <a href="/payments.html">Payments</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>Add Property</h2>
+            </div>
+
+            <div class="card">
+                <form id="property-form" class="form">
+                    <div class="form-group">
+                        <label for="address">Street Address *</label>
+                        <input type="text" id="address" name="address" required placeholder="123 Beach Rd">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" name="city" required value="Sarasota">
+                        </div>
+                        <div class="form-group">
+                            <label for="zip_code">ZIP Code *</label>
+                            <input type="text" id="zip_code" name="zip_code" required placeholder="34236">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="parcel_id">Parcel ID (PID)</label>
+                        <input type="text" id="parcel_id" name="parcel_id" placeholder="0000-00-0000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="zoning_type">Zoning Type</label>
+                        <select id="zoning_type" name="zoning_type">
+                            <option value="residential">Residential</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="mixed">Mixed Use</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="homestead_status" name="homestead_status">
+                            Homestead Exemption
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="is_registered" name="is_registered">
+                            Register for TDT (auto-generates TDT number)
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="/properties.html" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Property</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Sarasota County Tax Collector - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/property-add.js"></script>
+</body>
+</html>
+

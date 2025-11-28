@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Details - TDT Tax Collector</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">Sarasota County Tax Collector</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/properties.html" class="active">Properties</a>
+                <a href="/payments.html">Payments</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>Property Details</h2>
+            </div>
+
+            <div class="property-detail-layout">
+                <div class="property-main">
+                    <div class="card" id="property-info">
+                        <p class="empty-state">Loading...</p>
+                    </div>
+                </div>
+                <div class="property-sidebar">
+                    <div class="card">
+                        <h3>Location</h3>
+                        <div id="property-map" class="property-map"></div>
+                        <p class="map-address" id="map-address"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Payment History</h3>
+                <div id="payments-table">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Sarasota County Tax Collector - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/property-detail.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVAZtgmpGQu5ngw__6WenbKywcfFwv9TQ&callback=initMap"></script>
+</body>
+</html>
+

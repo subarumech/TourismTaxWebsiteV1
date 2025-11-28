@@ -1,0 +1,17 @@
+{
+  "name": "tdt-tax-collector",
+  "version": "1.0.0",
+  "description": "Tourist Development Tax Collection System for Sarasota County",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "seed": "node scripts/seed.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
+

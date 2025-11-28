@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Payment - TDT Tax Collector</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">Sarasota County Tax Collector</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/properties.html">Properties</a>
+                <a href="/payments.html" class="active">Payments</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>Record TDT Payment</h2>
+            </div>
+
+            <div class="card">
+                <form id="payment-form" class="form">
+                    <div class="form-group">
+                        <label for="property_id">Property *</label>
+                        <select id="property_id" name="property_id" required>
+                            <option value="">Select a property</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dealer_id">Dealer (leave blank for independent payment)</label>
+                        <select id="dealer_id" name="dealer_id">
+                            <option value="">Independent</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount *</label>
+                        <input type="number" id="amount" name="amount" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="period_start">Period Start *</label>
+                            <input type="date" id="period_start" name="period_start" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="period_end">Period End *</label>
+                            <input type="date" id="period_end" name="period_end" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expected_amount">Expected Amount (for verification)</label>
+                        <input type="number" id="expected_amount" name="expected_amount" step="0.01" min="0" placeholder="0.00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="/payments.html" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Record Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Sarasota County Tax Collector - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/payment-add.js"></script>
+</body>
+</html>
+
