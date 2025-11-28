@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Map - TDT Tax Collector</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        #full-map {
+            width: 100%;
+            height: calc(100vh - 250px);
+            min-height: 500px;
+            border-radius: 8px;
+        }
+        .map-legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .legend-dot.compliant { background: #22c55e; }
+        .legend-dot.scenario-1 { background: #ef4444; }
+        .legend-dot.scenario-2 { background: #f97316; }
+        .legend-dot.scenario-3 { background: #eab308; }
+        .legend-dot.scenario-4 { background: #a855f7; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">Sarasota County Tax Collector</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/properties.html">Properties</a>
+                <a href="/map.html" class="active">Map</a>
+                <a href="/payments.html">Payments</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>Property Map</h2>
+            </div>
+
+            <div class="card">
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot compliant"></div>
+                        <span>Compliant</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot scenario-1"></div>
+                        <span>Not registered, didn't pay</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot scenario-2"></div>
+                        <span>Not registered, but paid</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot scenario-3"></div>
+                        <span>Registered, didn't pay</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot scenario-4"></div>
+                        <span>Registered, wrong amount</span>
+                    </div>
+                </div>
+                <div id="full-map"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Sarasota County Tax Collector - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVAZtgmpGQu5ngw__6WenbKywcfFwv9TQ"></script>
+    <script src="/js/map.js"></script>
+</body>
+</html>
+
