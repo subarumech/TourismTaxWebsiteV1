@@ -54,14 +54,6 @@ CREATE INDEX idx_properties_registered ON properties(is_registered);
 CREATE INDEX idx_payments_property ON payments(property_id);
 CREATE INDEX idx_payments_dealer ON payments(dealer_id);
 
--- Insert default dealers
-INSERT INTO dealers (name, dealer_type, contact_email) VALUES
-    ('Airbnb', 'platform', 'support@airbnb.com'),
-    ('VRBO', 'platform', 'support@vrbo.com'),
-    ('Booking.com', 'platform', 'support@bookingcom.com'),
-    ('Evolve', 'platform', 'support@evolve.com'),
-    ('HomeAway', 'platform', 'support@homeaway.com');
-
 -- Enable Row Level Security (optional but recommended)
 ALTER TABLE dealers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE properties ENABLE ROW LEVEL SECURITY;

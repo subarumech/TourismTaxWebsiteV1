@@ -1,6 +1,17 @@
 -- Seed data for TDT Tax Collector
 -- Run this after schema.sql to populate sample data
 
+-- Clear existing data first (order matters due to foreign keys)
+TRUNCATE payments, properties, dealers RESTART IDENTITY CASCADE;
+
+-- Re-insert dealers
+INSERT INTO dealers (name, dealer_type, contact_email) VALUES
+    ('Airbnb', 'platform', 'support@airbnb.com'),
+    ('VRBO', 'platform', 'support@vrbo.com'),
+    ('Booking.com', 'platform', 'support@bookingcom.com'),
+    ('Evolve', 'platform', 'support@evolve.com'),
+    ('HomeAway', 'platform', 'support@homeaway.com');
+
 -- Sample properties from Sarasota County
 INSERT INTO properties (address, city, zip_code, lat, lng, parcel_id, is_registered, tdt_number, registration_date, compliance_scenario, homestead_status, zoning_type) VALUES
 -- Siesta Key
