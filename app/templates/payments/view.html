@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Details - Tourist Development Tax Collection{% endblock %}
+{% block header %}Payment Details{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="details-grid">
+        <div class="detail-item">
+            <span class="detail-label">Property</span>
+            <span class="detail-value">
+                <a href="{{ url_for('properties.view_property', id=payment.property.id) }}">{{ payment.property.address }}</a>
+            </span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Amount</span>
+            <span class="detail-value">${{ "{:,.2f}".format(payment.amount) }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Period</span>
+            <span class="detail-value">{{ payment.period_start }} - {{ payment.period_end }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Dealer</span>
+            <span class="detail-value">{{ payment.dealer.name if payment.dealer else 'Direct Payment' }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Payment Date</span>
+            <span class="detail-value">{{ payment.payment_date.strftime('%Y-%m-%d %H:%M') if payment.payment_date else '-' }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Expected Amount</span>
+            <span class="detail-value">{{ "${:,.2f}".format(payment.expected_amount) if payment.expected_amount else '-' }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Verified</span>
+            <span class="detail-value">
+                {% if payment.verified %}
+                    <span class="badge badge-success">Verified</span>
+                {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                {% endif %}
+            </span>
+        </div>
+        {% if payment.notes %}
+        <div class="detail-item full-width">
+            <span class="detail-label">Notes</span>
+            <span class="detail-value">{{ payment.notes }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Payments - Tourist Development Tax Collection{% endblock %}
+{% block header %}TDT Payments{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+    <div></div>
+    <a href="{{ url_for('payments.add_payment') }}" class="btn btn-primary">Record Payment</a>
+</div>
+
+<div class="card">
+    {% if payments %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Property</th>
+                <th>Period</th>
+                <th>Amount</th>
+                <th>Dealer</th>
+                <th>Payment Date</th>
+                <th>Verified</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td><a href="{{ url_for('properties.view_property', id=payment.property.id) }}">{{ payment.property.address }}</a></td>
+                <td>{{ payment.period_start }} - {{ payment.period_end }}</td>
+                <td>${{ "{:,.2f}".format(payment.amount) }}</td>
+                <td>{{ payment.dealer.name if payment.dealer else 'Direct' }}</td>
+                <td>{{ payment.payment_date.strftime('%Y-%m-%d') if payment.payment_date else '-' }}</td>
+                <td>
+                    {% if payment.verified %}
+                        <span class="badge badge-success">Verified</span>
+                    {% else %}
+                        <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No payments recorded. <a href="{{ url_for('payments.add_payment') }}">Record one</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

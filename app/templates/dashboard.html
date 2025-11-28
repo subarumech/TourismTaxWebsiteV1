@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Tourist Development Tax Collection{% endblock %}
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_properties }}</div>
+        <div class="stat-label">Total Properties</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ registered_count }}</div>
+        <div class="stat-label">Registered for TDT</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">${{ "{:,.2f}".format(total_tdt_collected) }}</div>
+        <div class="stat-label">Total TDT Collected</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ dealer_count }}</div>
+        <div class="stat-label">Active Dealers</div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Compliance Scenarios</h3>
+    <p class="card-subtitle">Properties grouped by their compliance status</p>
+    
+    <div class="scenario-grid">
+        <a href="{{ url_for('properties.list_properties', scenario=1) }}" class="scenario-card scenario-1">
+            <div class="scenario-count">{{ scenario_counts[1] }}</div>
+            <div class="scenario-title">Not registered, did not pay</div>
+        </a>
+        <a href="{{ url_for('properties.list_properties', scenario=2) }}" class="scenario-card scenario-2">
+            <div class="scenario-count">{{ scenario_counts[2] }}</div>
+            <div class="scenario-title">Not registered, but paid</div>
+        </a>
+        <a href="{{ url_for('properties.list_properties', scenario=3) }}" class="scenario-card scenario-3">
+            <div class="scenario-count">{{ scenario_counts[3] }}</div>
+            <div class="scenario-title">Registered, did not pay</div>
+        </a>
+        <a href="{{ url_for('properties.list_properties', scenario=4) }}" class="scenario-card scenario-4">
+            <div class="scenario-count">{{ scenario_counts[4] }}</div>
+            <div class="scenario-title">Registered, paid wrong amount</div>
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Recent Transactions</h3>
+    {% if recent_transactions %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Property</th>
+                <th>Amount</th>
+                <th>Dealer</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for txn in recent_transactions %}
+            <tr>
+                <td><code>{{ txn.transaction_id }}</code></td>
+                <td><a href="{{ url_for('properties.view_property', id=txn.property.id) }}">{{ txn.property.address }}</a></td>
+                <td>${{ "{:,.2f}".format(txn.amount) }}</td>
+                <td>
+                    {% if txn.dealer %}
+                        <span class="badge badge-dealer">{{ txn.dealer.name }}</span>
+                    {% else %}
+                        <span class="badge badge-independent">Independent</span>
+                    {% endif %}
+                </td>
+                <td>{{ txn.payment_date.strftime('%m/%d/%y') if txn.payment_date else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No transactions yet. <a href="{{ url_for('payments.add_payment') }}">Record one</a> or run the seed script.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

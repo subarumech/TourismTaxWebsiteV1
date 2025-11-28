@@ -1,0 +1,619 @@
+{% extends "base.html" %}
+
+{% block title %}Property Map - Tourist Development Tax Collection{% endblock %}
+{% block header %}Property Map{% endblock %}
+
+{% block content %}
+<div class="map-page">
+    <div class="map-controls">
+        <div class="search-box">
+            <input type="text" id="address-search" placeholder="Search address in Sarasota County...">
+            <button type="button" id="search-btn" class="btn btn-primary btn-small">Search</button>
+        </div>
+        <div class="filter-controls">
+            <select id="scenario-filter">
+                <option value="">All Scenarios</option>
+                <option value="1">Scenario 1</option>
+                <option value="2">Scenario 2</option>
+                <option value="3">Scenario 3</option>
+                <option value="4">Scenario 4</option>
+            </select>
+            <select id="registration-filter">
+                <option value="">All Properties</option>
+                <option value="registered">Registered Only</option>
+                <option value="unregistered">Unregistered Only</option>
+            </select>
+            <span class="property-count"><span id="visible-count">0</span> properties shown</span>
+        </div>
+    </div>
+    
+    <div class="map-container">
+        <div id="map"></div>
+        <div id="property-panel" class="property-panel hidden">
+            <button type="button" id="close-panel" class="close-btn">&times;</button>
+            <div id="panel-content"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+.map-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 220px);
+    min-height: 500px;
+}
+
+.map-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-box {
+    display: flex;
+    gap: 0.5rem;
+    flex: 1;
+    max-width: 500px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
+}
+
+.filter-controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-controls select {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    background: white;
+    cursor: pointer;
+}
+
+.filter-controls select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.property-count {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-gray);
+    border-radius: var(--radius);
+}
+
+.map-container {
+    flex: 1;
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+}
+
+.property-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 380px;
+    max-width: 90%;
+    height: 100%;
+    background: white;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.property-panel.hidden {
+    transform: translateX(100%);
+}
+
+.close-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--bg-gray);
+    border-radius: 50%;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+#panel-content {
+    padding: 1.5rem;
+}
+
+.panel-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.panel-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin: 0 0 0.5rem 0;
+    padding-right: 2rem;
+}
+
+.panel-address {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.panel-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.panel-section {
+    margin-bottom: 1.25rem;
+}
+
+.panel-section h4 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.panel-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+}
+
+.panel-row .label {
+    color: var(--text-secondary);
+}
+
+.panel-row .value {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.panel-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.panel-actions .btn {
+    flex: 1;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+}
+
+.search-result-marker {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+
+.search-result-marker p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.search-result-marker strong {
+    color: var(--primary-blue);
+}
+
+.no-data-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}
+
+.no-data-message p {
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .map-page {
+        height: calc(100vh - 180px);
+    }
+    
+    .map-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box {
+        max-width: 100%;
+    }
+    
+    .property-panel {
+        width: 100%;
+        max-width: 100%;
+        height: 60%;
+        top: auto;
+        bottom: 0;
+        transform: translateY(0);
+    }
+    
+    .property-panel.hidden {
+        transform: translateY(100%);
+    }
+}
+</style>
+
+<script>
+let map;
+let markers = [];
+let allProperties = [];
+let searchMarker = null;
+let infoWindow = null;
+let autocomplete = null;
+
+const SARASOTA_CENTER = { lat: 27.3364, lng: -82.5307 };
+const SCENARIO_COLORS = {
+    1: '#c53030',
+    2: '#c05621',
+    3: '#6b46c1',
+    4: '#b83280',
+    null: '#0066cc'
+};
+
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: SARASOTA_CENTER,
+        zoom: 11,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+            position: google.maps.ControlPosition.TOP_RIGHT
+        },
+        streetViewControl: false,
+        fullscreenControl: true
+    });
+    
+    infoWindow = new google.maps.InfoWindow();
+    
+    const input = document.getElementById('address-search');
+    autocomplete = new google.maps.places.Autocomplete(input, {
+        bounds: new google.maps.LatLngBounds(
+            { lat: 27.0, lng: -82.8 },
+            { lat: 27.6, lng: -82.2 }
+        ),
+        componentRestrictions: { country: 'us' },
+        fields: ['formatted_address', 'geometry', 'place_id']
+    });
+    
+    autocomplete.addListener('place_changed', onPlaceSelected);
+    
+    document.getElementById('search-btn').addEventListener('click', searchAddress);
+    document.getElementById('scenario-filter').addEventListener('change', applyFilters);
+    document.getElementById('registration-filter').addEventListener('change', applyFilters);
+    document.getElementById('close-panel').addEventListener('click', closePanel);
+    
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchAddress();
+        }
+    });
+    
+    loadProperties();
+}
+
+async function loadProperties() {
+    try {
+        const response = await fetch('/api/v1/properties/map');
+        allProperties = await response.json();
+        createMarkers(allProperties);
+        updateCount();
+    } catch (err) {
+        console.error('Failed to load properties:', err);
+    }
+}
+
+function createMarkers(properties) {
+    clearMarkers();
+    
+    properties.forEach(prop => {
+        if (prop.lat && prop.lng) {
+            const color = SCENARIO_COLORS[prop.compliance_scenario] || SCENARIO_COLORS[null];
+            
+            const marker = new google.maps.Marker({
+                position: { lat: prop.lat, lng: prop.lng },
+                map: map,
+                title: prop.address,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: color,
+                    fillOpacity: 0.9,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2
+                }
+            });
+            
+            marker.propertyData = prop;
+            
+            marker.addListener('click', () => {
+                showPropertyPanel(prop);
+                map.panTo(marker.getPosition());
+            });
+            
+            marker.addListener('mouseover', () => {
+                const content = `
+                    <div style="padding: 8px; max-width: 250px;">
+                        <strong style="color: #003366;">${prop.address}</strong><br>
+                        <span style="color: #666; font-size: 0.85em;">${prop.city}, FL ${prop.zip_code}</span>
+                        ${prop.tdt_number ? `<br><span style="color: #0066cc; font-size: 0.85em;">${prop.tdt_number}</span>` : ''}
+                    </div>
+                `;
+                infoWindow.setContent(content);
+                infoWindow.open(map, marker);
+            });
+            
+            marker.addListener('mouseout', () => {
+                infoWindow.close();
+            });
+            
+            markers.push(marker);
+        }
+    });
+}
+
+function clearMarkers() {
+    markers.forEach(m => m.setMap(null));
+    markers = [];
+}
+
+function applyFilters() {
+    const scenarioFilter = document.getElementById('scenario-filter').value;
+    const registrationFilter = document.getElementById('registration-filter').value;
+    
+    let filtered = allProperties;
+    
+    if (scenarioFilter) {
+        filtered = filtered.filter(p => p.compliance_scenario === parseInt(scenarioFilter));
+    }
+    
+    if (registrationFilter === 'registered') {
+        filtered = filtered.filter(p => p.is_registered);
+    } else if (registrationFilter === 'unregistered') {
+        filtered = filtered.filter(p => !p.is_registered);
+    }
+    
+    createMarkers(filtered);
+    updateCount();
+}
+
+function updateCount() {
+    document.getElementById('visible-count').textContent = markers.length;
+}
+
+function onPlaceSelected() {
+    const place = autocomplete.getPlace();
+    
+    if (!place.geometry) {
+        searchAddress();
+        return;
+    }
+    
+    handleSearchResult(place.geometry.location, place.formatted_address);
+}
+
+function searchAddress() {
+    const address = document.getElementById('address-search').value;
+    if (!address) return;
+    
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({
+        address: address + ', Sarasota County, FL',
+        bounds: new google.maps.LatLngBounds(
+            { lat: 27.0, lng: -82.8 },
+            { lat: 27.6, lng: -82.2 }
+        )
+    }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+            handleSearchResult(results[0].geometry.location, results[0].formatted_address);
+        } else {
+            alert('Address not found. Try a different search term.');
+        }
+    });
+}
+
+function handleSearchResult(location, formattedAddress) {
+    if (searchMarker) {
+        searchMarker.setMap(null);
+    }
+    
+    searchMarker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: 'Searched Location',
+        icon: {
+            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+            scale: 6,
+            fillColor: '#ffc107',
+            fillOpacity: 1,
+            strokeColor: '#000',
+            strokeWeight: 1
+        },
+        zIndex: 1000
+    });
+    
+    map.setCenter(location);
+    map.setZoom(17);
+    
+    const nearbyProp = findNearbyProperty(location);
+    
+    if (nearbyProp) {
+        showPropertyPanel(nearbyProp, formattedAddress);
+    } else {
+        showNoDataPanel(formattedAddress, location);
+    }
+}
+
+function findNearbyProperty(location) {
+    const searchLat = location.lat();
+    const searchLng = location.lng();
+    const threshold = 0.0005; // roughly 50 meters
+    
+    for (const prop of allProperties) {
+        if (prop.lat && prop.lng) {
+            const latDiff = Math.abs(prop.lat - searchLat);
+            const lngDiff = Math.abs(prop.lng - searchLng);
+            if (latDiff < threshold && lngDiff < threshold) {
+                return prop;
+            }
+        }
+    }
+    return null;
+}
+
+function showPropertyPanel(prop, searchedAddress = null) {
+    const scenarioBadge = prop.compliance_scenario 
+        ? `<span class="badge badge-scenario-${prop.compliance_scenario}">Scenario ${prop.compliance_scenario}</span>`
+        : '';
+    const regBadge = prop.is_registered 
+        ? '<span class="badge badge-success">Registered</span>'
+        : '<span class="badge badge-warning">Unregistered</span>';
+    
+    let searchNote = '';
+    if (searchedAddress) {
+        searchNote = `
+            <div class="search-result-marker">
+                <p><strong>Searched:</strong> ${searchedAddress}</p>
+            </div>
+        `;
+    }
+    
+    const html = `
+        ${searchNote}
+        <div class="panel-header">
+            <h3>${prop.address}</h3>
+            <div class="panel-address">${prop.city}, FL ${prop.zip_code}</div>
+            <div class="panel-badges">
+                ${regBadge}
+                ${scenarioBadge}
+            </div>
+        </div>
+        
+        <div class="panel-section">
+            <h4>Property Details</h4>
+            <div class="panel-row">
+                <span class="label">TDT Number</span>
+                <span class="value">${prop.tdt_number || 'N/A'}</span>
+            </div>
+            <div class="panel-row">
+                <span class="label">Parcel ID</span>
+                <span class="value">${prop.parcel_id || 'N/A'}</span>
+            </div>
+            <div class="panel-row">
+                <span class="label">Zoning</span>
+                <span class="value">${prop.zoning_type || 'N/A'}</span>
+            </div>
+            <div class="panel-row">
+                <span class="label">Homestead</span>
+                <span class="value">${prop.homestead_status ? 'Yes' : 'No'}</span>
+            </div>
+        </div>
+        
+        <div class="panel-section">
+            <h4>Location</h4>
+            <div class="panel-row">
+                <span class="label">Latitude</span>
+                <span class="value">${prop.lat?.toFixed(6) || 'N/A'}</span>
+            </div>
+            <div class="panel-row">
+                <span class="label">Longitude</span>
+                <span class="value">${prop.lng?.toFixed(6) || 'N/A'}</span>
+            </div>
+        </div>
+        
+        <div class="panel-actions">
+            <a href="/properties/${prop.id}" class="btn btn-primary">View Details</a>
+            <a href="/properties/${prop.id}/edit" class="btn btn-secondary">Edit</a>
+        </div>
+    `;
+    
+    document.getElementById('panel-content').innerHTML = html;
+    document.getElementById('property-panel').classList.remove('hidden');
+}
+
+function showNoDataPanel(searchedAddress, location) {
+    const html = `
+        <div class="search-result-marker">
+            <p><strong>Searched:</strong> ${searchedAddress}</p>
+        </div>
+        <div class="no-data-message">
+            <p>No property data found at this location.</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                Coordinates: ${location.lat().toFixed(6)}, ${location.lng().toFixed(6)}
+            </p>
+            <a href="/properties/add" class="btn btn-primary">Add New Property</a>
+        </div>
+    `;
+    
+    document.getElementById('panel-content').innerHTML = html;
+    document.getElementById('property-panel').classList.remove('hidden');
+}
+
+function closePanel() {
+    document.getElementById('property-panel').classList.add('hidden');
+    if (searchMarker) {
+        searchMarker.setMap(null);
+        searchMarker = null;
+    }
+}
+</script>
+
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&libraries=places&callback=initMap">
+</script>
+{% endblock %}
+

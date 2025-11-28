@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Record Payment - Tourist Development Tax Collection{% endblock %}
+{% block header %}Record TDT Payment{% endblock %}
+
+{% block content %}
+<div class="card">
+    <form method="POST" class="form">
+        <div class="form-group">
+            <label for="property_id">Property *</label>
+            <select id="property_id" name="property_id" required>
+                <option value="">Select a property</option>
+                {% for prop in properties %}
+                <option value="{{ prop.id }}">{{ prop.address }} - {{ prop.tdt_number or 'No TDT#' }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="dealer_id">Dealer (leave blank for direct payment)</label>
+            <select id="dealer_id" name="dealer_id">
+                <option value="">Direct Payment</option>
+                {% for dealer in dealers %}
+                <option value="{{ dealer.id }}">{{ dealer.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="amount">Amount *</label>
+            <input type="number" id="amount" name="amount" step="0.01" min="0" required placeholder="0.00">
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="period_start">Period Start *</label>
+                <input type="date" id="period_start" name="period_start" required>
+            </div>
+            <div class="form-group">
+                <label for="period_end">Period End *</label>
+                <input type="date" id="period_end" name="period_end" required>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="expected_amount">Expected Amount (for verification)</label>
+            <input type="number" id="expected_amount" name="expected_amount" step="0.01" min="0" placeholder="0.00">
+        </div>
+        
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes..."></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{{ url_for('payments.list_payments') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Record Payment</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
