@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  await loadDashboard();
+});
+
+async function loadDashboard() {
   try {
     const stats = await fetchApi('/stats');
     
@@ -18,7 +22,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('transactions-table').innerHTML = 
       '<p class="empty-state">Failed to load data. Please try again.</p>';
   }
-});
+}
+
+async function syncDatabase() {
+  const btn = document.getElementById('sync-btn');
+  const originalText = btn.textContent;
+  
+  btn.disabled = true;
+  btn.textContent = 'Syncing...';
+  
+  try {
+    const result = await fetchApi('/sync', { method: 'POST' });
+    alert(result.message);
+    await loadDashboard(); // Refresh the dashboard
+  } catch (err) {
+    alert('Sync failed: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
 
 function renderTransactions(transactions) {
   const container = document.getElementById('transactions-table');
