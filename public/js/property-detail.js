@@ -17,6 +17,7 @@ async function loadProperty(id) {
     propertyData = await fetchApi(`/properties/${id}`);
     renderProperty(propertyData);
     renderPayments(propertyData.payments);
+    initMap(); // Initialize map after data loads
   } catch (err) {
     console.error('Failed to load property:', err);
     document.getElementById('property-info').innerHTML = 
