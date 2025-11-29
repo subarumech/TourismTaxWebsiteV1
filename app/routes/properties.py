@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify
 from app.models import Property
 from app import db
 from datetime import datetime
@@ -106,4 +106,19 @@ def register_property(id):
         flash(f'Property registered. TDT#: {prop.tdt_number}', 'success')
     
     return redirect(url_for('properties.view_property', id=id))
+
+@bp.route('/<int:id>/update-coordinates', methods=['POST'])
+def update_coordinates(id):
+    prop = Property.query.get_or_404(id)
+    data = request.get_json()
+    
+    if 'lat' in data and 'lng' in data:
+        prop.lat = float(data['lat'])
+        prop.lng = float(data['lng'])
+        if 'place_id' in data:
+            prop.google_place_id = data['place_id']
+        db.session.commit()
+        return jsonify({'success': True, 'lat': prop.lat, 'lng': prop.lng})
+    
+    return jsonify({'success': False, 'error': 'Missing lat/lng'}), 400
 

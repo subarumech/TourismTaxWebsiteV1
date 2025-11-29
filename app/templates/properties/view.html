@@ -93,11 +93,10 @@
 <div class="property-sidebar">
     <div class="card">
         <h3>Location</h3>
-        {% if property.lat and property.lng %}
         <div id="property-map" class="property-map"></div>
         <p class="map-address">{{ property.address }}, {{ property.city }}, FL {{ property.zip_code }}</p>
-        {% else %}
-        <p class="empty-state">No location data available.</p>
+        {% if not property.lat or not property.lng %}
+        <button id="geocode-btn" class="btn btn-secondary" style="margin-top: 0.5rem; width: 100%;">Get Location</button>
         {% endif %}
     </div>
 </div>
@@ -279,30 +278,128 @@
 </div>
 {% endif %}
 
-{% if property.lat and property.lng %}
 <script>
+let propertyMap = null;
+let propertyMarker = null;
+const propertyId = {{ property.id }};
+const hasCoordinates = {% if property.lat and property.lng %}true{% else %}false{% endif %};
+const initialLat = {% if property.lat %}{{ property.lat }}{% else %}null{% endif %};
+const initialLng = {% if property.lng %}{{ property.lng }}{% else %}null{% endif %};
+const propertyAddress = '{{ property.address }}, {{ property.city }}, FL {{ property.zip_code }}';
+
 function initMap() {
-    const location = { lat: {{ property.lat }}, lng: {{ property.lng }} };
     const mapElement = document.getElementById('property-map');
     if (!mapElement) {
         console.error('Map element not found');
         return;
     }
-    const map = new google.maps.Map(mapElement, {
-        zoom: 16,
-        center: location,
-        mapTypeId: 'roadmap',
-        disableDefaultUI: true,
-        zoomControl: true
-    });
-    new google.maps.Marker({
-        position: location,
-        map: map,
-        title: '{{ property.address }}'
+
+    if (hasCoordinates && initialLat && initialLng) {
+        const location = { lat: initialLat, lng: initialLng };
+        propertyMap = new google.maps.Map(mapElement, {
+            zoom: 16,
+            center: location,
+            mapTypeId: 'roadmap',
+            disableDefaultUI: true,
+            zoomControl: true
+        });
+        propertyMarker = new google.maps.Marker({
+            position: location,
+            map: propertyMap,
+            title: '{{ property.address }}'
+        });
+    } else {
+        propertyMap = new google.maps.Map(mapElement, {
+            zoom: 11,
+            center: { lat: 27.3364, lng: -82.5307 },
+            mapTypeId: 'roadmap',
+            disableDefaultUI: true,
+            zoomControl: true
+        });
+        geocodeAddress();
+    }
+
+    const geocodeBtn = document.getElementById('geocode-btn');
+    if (geocodeBtn) {
+        geocodeBtn.addEventListener('click', geocodeAddress);
+    }
+}
+
+function geocodeAddress() {
+    const geocodeBtn = document.getElementById('geocode-btn');
+    if (geocodeBtn) {
+        geocodeBtn.disabled = true;
+        geocodeBtn.textContent = 'Loading...';
+    }
+
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({
+        address: propertyAddress,
+        bounds: new google.maps.LatLngBounds(
+            { lat: 27.0, lng: -82.8 },
+            { lat: 27.6, lng: -82.2 }
+        )
+    }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+            const location = results[0].geometry.location;
+            const lat = location.lat();
+            const lng = location.lng();
+            const placeId = results[0].place_id;
+
+            if (propertyMap) {
+                propertyMap.setCenter(location);
+                propertyMap.setZoom(16);
+            }
+
+            if (propertyMarker) {
+                propertyMarker.setPosition(location);
+            } else {
+                propertyMarker = new google.maps.Marker({
+                    position: location,
+                    map: propertyMap,
+                    title: '{{ property.address }}'
+                });
+            }
+
+            fetch(`/properties/${propertyId}/update-coordinates`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ lat: lat, lng: lng, place_id: placeId })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      if (geocodeBtn) {
+                          geocodeBtn.style.display = 'none';
+                      }
+                      window.location.reload();
+                  } else {
+                      alert('Failed to save coordinates');
+                      if (geocodeBtn) {
+                          geocodeBtn.disabled = false;
+                          geocodeBtn.textContent = 'Get Location';
+                      }
+                  }
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+                  alert('Failed to save coordinates');
+                  if (geocodeBtn) {
+                      geocodeBtn.disabled = false;
+                      geocodeBtn.textContent = 'Get Location';
+                  }
+              });
+        } else {
+            alert('Address not found. Please check the address and try again.');
+            if (geocodeBtn) {
+                geocodeBtn.disabled = false;
+                geocodeBtn.textContent = 'Get Location';
+            }
+        }
     });
 }
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap"></script>
-{% endif %}
 {% endblock %}
 
