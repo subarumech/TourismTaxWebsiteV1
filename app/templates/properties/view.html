@@ -283,7 +283,12 @@
 <script>
 function initMap() {
     const location = { lat: {{ property.lat }}, lng: {{ property.lng }} };
-    const map = new google.maps.Map(document.getElementById('property-map'), {
+    const mapElement = document.getElementById('property-map');
+    if (!mapElement) {
+        console.error('Map element not found');
+        return;
+    }
+    const map = new google.maps.Map(mapElement, {
         zoom: 16,
         center: location,
         mapTypeId: 'roadmap',
@@ -297,7 +302,7 @@ function initMap() {
     });
 }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config.GOOGLE_API_KEY }}&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap"></script>
 {% endif %}
 {% endblock %}
 

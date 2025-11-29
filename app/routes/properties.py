@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from app.models import Property
 from app import db
 from datetime import datetime
@@ -66,7 +66,8 @@ def add_property():
 @bp.route('/<int:id>')
 def view_property(id):
     prop = Property.query.get_or_404(id)
-    return render_template('properties/view.html', property=prop)
+    google_api_key = current_app.config.get('GOOGLE_API_KEY', '')
+    return render_template('properties/view.html', property=prop, google_api_key=google_api_key)
 
 @bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 def edit_property(id):
