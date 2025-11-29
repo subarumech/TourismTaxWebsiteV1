@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  tdt-app:
+    build: .
+    container_name: tdt-tax-collector
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    volumes:
+      - ./public:/app/public:ro
+

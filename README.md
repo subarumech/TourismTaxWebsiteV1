@@ -100,7 +100,143 @@ To enable property location maps:
 
 ---
 
+## Self-Hosting on Synology NAS (Docker)
+
+If you've reached Netlify limits or want complete control, you can host this on your own Synology NAS using Docker.
+
+### Prerequisites
+
+1. Synology NAS with **Container Manager** (Docker) installed
+2. SSH access enabled on your NAS
+3. Supabase database already set up (see step 1 above)
+
+### Initial Setup
+
+1. **Create environment file on your NAS:**
+
+   SSH into your NAS and create `/volume1/docker/tdt-tax-collector/.env`:
+   ```bash
+   mkdir -p /volume1/docker/tdt-tax-collector
+   cd /volume1/docker/tdt-tax-collector
+   nano .env
+   ```
+
+   Add your credentials:
+   ```
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_ANON_KEY=your-anon-key
+   GOOGLE_API_KEY=your-google-api-key (optional)
+   PORT=3000
+   ```
+
+2. **Set up SSH key authentication** (optional but recommended):
+   ```bash
+   ssh-copy-id admin@192.168.1.74
+   ```
+
+### Deploy the Application
+
+From your local development machine, simply run:
+
+```bash
+./deploy.sh
+```
+
+The script will:
+- Package your code
+- Transfer it to the NAS via SSH
+- Build the Docker image
+- Start/restart the container
+
+The app will be available at: `http://192.168.1.74:3000`
+
+### Updating the App
+
+**Quick Deploy (Recommended):**
+```bash
+./deploy.sh && ssh -t gravy23@192.168.1.74 "cd /volume1/docker/tdt-tax-collector && sudo ./deploy-local.sh"
+```
+
+This transfers your code and rebuilds the container. You'll be prompted for your NAS password once.
+
+**Alternative - Two-step Deploy:**
+1. First, sync your code: `./deploy.sh` (no password needed)
+2. Then SSH in and run: `ssh gravy23@192.168.1.74` then `cd /volume1/docker/tdt-tax-collector && sudo ./deploy-local.sh`
+
+The entire deployment takes about 30-45 seconds.
+
+### Managing the Container
+
+SSH into your NAS to manage the container:
+
+```bash
+cd /volume1/docker/tdt-tax-collector
+
+# View logs
+docker-compose logs -f
+
+# Restart container
+docker-compose restart
+
+# Stop container
+docker-compose down
+
+# Rebuild and restart
+docker-compose up -d --build
+```
+
+### Configuration
+
+- **Port:** Default is 3000, change in `docker-compose.yml` if needed
+- **Auto-restart:** Container automatically restarts on NAS reboot
+- **Environment variables:** Edit `/volume1/docker/tdt-tax-collector/.env` on the NAS
+
+### Troubleshooting
+
+**Dashboard not loading data:**
+- Make sure you've created a `.env` file on the NAS with your Supabase credentials
+- Verify the Supabase URL and key are correct
+- Check if RLS (Row Level Security) policies are properly set up in Supabase by running:
+  - `supabase/schema.sql` (creates tables and basic policies)
+  - `supabase/add_insert_policies.sql` (adds insert policies for county data tables)
+  - `supabase/fix_missing_policies.sql` (adds missing insert policy for dealers table)
+
+**"The string did not match the expected pattern" error:**
+- This typically means there's an issue with Supabase RLS policies
+- Run `supabase/fix_missing_policies.sql` in your Supabase SQL Editor
+- Make sure all required environment variables are set in the `.env` file
+
+**Deployment fails:**
+1. Verify SSH access: `ssh admin@192.168.1.74`
+2. Check Container Manager is installed on your NAS
+3. Ensure the NAS has internet access for pulling Docker images
+4. Check logs: SSH into NAS and run `cd /volume1/docker/tdt-tax-collector && docker-compose logs`
+
+---
+
 ## Local Development
+
+There are two ways to run the application locally:
+
+### Option 1: Using the Express Server (Recommended for Local)
+
+```bash
+# Install dependencies
+npm install
+
+# Create .env file with your Supabase credentials
+echo "SUPABASE_URL=your-url" > .env
+echo "SUPABASE_ANON_KEY=your-key" >> .env
+
+# Run the server
+npm start
+```
+
+Then open http://localhost:3000
+
+The Express server automatically uses `/api/` endpoints instead of Netlify Functions.
+
+### Option 2: Using Netlify Dev (for testing Netlify deployment)
 
 ```bash
 # Install dependencies
@@ -109,15 +245,13 @@ npm install
 # Install Netlify CLI globally
 npm install -g netlify-cli
 
-# Create .env file with your Supabase credentials
-echo "SUPABASE_URL=your-url" > .env
-echo "SUPABASE_ANON_KEY=your-key" >> .env
-
 # Run local dev server
 netlify dev
 ```
 
 Then open http://localhost:8888
+
+**Note:** If you're self-hosting (not using Netlify), Option 1 (Express Server) is recommended. The application now uses `/api/` endpoints for the Express server deployment.
 
 ---
 

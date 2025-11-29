@@ -1,4 +1,4 @@
-const API_BASE = '/.netlify/functions';
+const API_BASE = '/api';
 
 async function fetchApi(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
