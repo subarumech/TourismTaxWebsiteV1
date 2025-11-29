@@ -18,6 +18,32 @@ async function fetchApi(endpoint, options = {}) {
   return response.json();
 }
 
+async function apiGet(endpoint) {
+  return fetchApi(endpoint, {
+    method: 'GET'
+  });
+}
+
+async function apiPost(endpoint, data) {
+  return fetchApi(endpoint, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+async function apiPut(endpoint, data) {
+  return fetchApi(endpoint, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+}
+
+async function apiDelete(endpoint) {
+  return fetchApi(endpoint, {
+    method: 'DELETE'
+  });
+}
+
 function formatCurrency(amount) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
