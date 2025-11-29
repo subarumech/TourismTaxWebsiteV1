@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Appraiser Portal - TDT System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">Property Appraiser Portal</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/property-appraiser.html" class="active">Dashboard</a>
+                <a href="/properties.html">Properties</a>
+                <a href="/map.html">Map</a>
+                <a href="/" onclick="sessionStorage.clear();">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>Property Appraiser Dashboard</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-properties">-</div>
+                    <div class="stat-label">Total Properties</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="properties-with-tdt">-</div>
+                    <div class="stat-label">Properties with TDT#</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="homestead-with-tdt">-</div>
+                    <div class="stat-label">Homestead with TDT (Audit)</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>PID to TDT# Mapping Report</h3>
+                    <button class="btn btn-primary" onclick="exportPIDReport()">Export CSV</button>
+                </div>
+                <p class="card-subtitle">Export list of Property Identification Numbers (PID) matched with TDT numbers issued by the State of Florida Department of Revenue</p>
+                <div id="pid-tdt-table">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Homestead Exemption Audit</h3>
+                    <button class="btn btn-primary" onclick="exportHomesteadAudit()">Export CSV</button>
+                </div>
+                <p class="card-subtitle">Properties with TDT# should NOT have Homestead Exemption</p>
+                <div id="homestead-audit-table">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Property Appraiser - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/property-appraiser.js"></script>
+</body>
+</html>
+

@@ -1,21 +1,53 @@
-# TDT Tax Collector
+# TDT Tax Collection System
 
-A web application for Sarasota County Tax Collectors to manage Tourist Development Tax (TDT) compliance.
+A multi-stakeholder web application for managing Tourist Development Tax (TDT) compliance across Florida. The system serves Property Appraisers, Tax Collectors, County and City Governments, Department of Revenue, Vacation Rental Brokers, and Property Owners.
 
 **Live Demo:** Deploy to Netlify (see instructions below)
 
-## Features
+## User Types & Features
 
-- Property lookup by address, parcel ID, or TDT number
-- Automatic TDT number assignment on registration
-- Compliance dashboard with four scenario tracking:
-  1. Not registered, did not pay
-  2. Not registered, but paid
-  3. Registered, did not pay
-  4. Registered, paid wrong amount
-- Payment recording and tracking with unique transaction IDs
-- Property location maps via Google Maps API
-- API endpoints for dealer integration
+### Property Appraiser
+- **PID to TDT# Mapping Report**: Export list of Property Identification Numbers (PID) matched with TDT numbers
+- **Homestead Exemption Audit**: Identify properties with TDT# that should NOT have Homestead Exemption
+- **CSV Export**: Export reports for auditing purposes
+
+### Tax Collector
+- **Compliance Dashboard**: Track four compliance scenarios:
+  1. Parcel does NOT have TDT# and someone sent in money
+  2. Parcel DOES have TDT# and no money was collected
+  3. Parcel DOES have TDT# but wrong amount of money was sent
+  4. Parcel does NOT have TDT# and NO money was sent
+- **Payment Tracking**: Record and track TDT payments with transaction IDs
+- **Property Management**: Full property and payment history
+
+### County Government
+- **Property Reports**: View all properties with TDT numbers in the county
+- **Map Lookup**: Check zones for TDT# conducting transient accommodations in restricted areas
+- **Zoning Enforcement**: Identify potential zoning violations
+- **CSV Export**: Export county property reports
+
+### City Government
+- **Property Reports**: View all properties with TDT numbers in the city
+- **Map Lookup**: Check zones for TDT# in restricted areas
+- **Zoning Compliance**: Monitor short-term rental compliance
+- **CSV Export**: Export city property reports
+
+### Department of Revenue (DOR)
+- **TDT# Generation**: System automatically generates random TDT# with first two digits matching Florida County Number Map
+- **State-wide Reporting**: View all properties and TDT numbers across counties
+- **Active/Inactive Tracking**: Monitor TDT status with effective dates
+- **CSV Export**: Export comprehensive state reports
+
+### Vacation Rental Brokers
+- **TDT Lookup API**: Verify TDT registration before collecting payments
+- **Property Owner Registration**: Direct property owners to register for TDT#
+- **API Integration**: Integrate TDT lookup into rental platforms
+- **Compliance Requirements**: Mandated to require TDT# for all transactions
+
+### Property Owner
+- **Public Registration**: Register properties for TDT number
+- **Automatic TDT# Assignment**: Receive TDT number immediately upon registration
+- **FREE Access**: No cost to register or check TDT status
 
 ## Tech Stack
 
@@ -89,21 +121,114 @@ Then open http://localhost:8888
 
 ---
 
+## Importing County Data
+
+This system supports importing comprehensive property data from county property appraiser offices. The data includes property ownership, sales history, building details, land information, property valuations, and tax exemptions.
+
+### Prerequisites
+
+1. Install Python dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+2. Set up Supabase credentials in `.env`:
+```bash
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+```
+
+3. Place data files in `data/Sarasota County/SCPA_Detailed_Data/`
+
+### Running the Import
+
+The import script supports importing all data or specific tables:
+
+```bash
+# Import all data (properties, sales, buildings, land, values, exemptions, lookups)
+python scripts/import_county_data.py --all
+
+# Import specific table
+python scripts/import_county_data.py --table properties
+python scripts/import_county_data.py --table sales
+python scripts/import_county_data.py --table buildings
+python scripts/import_county_data.py --table lookups
+
+# Dry run (preview without inserting data)
+python scripts/import_county_data.py --all --dry-run
+```
+
+### Expected Data Files
+
+Place these files in `data/Sarasota County/SCPA_Detailed_Data/`:
+- `PropertyOwnerLegal.txt` - Property ownership and location data
+- `Sales.txt` - Property sales history
+- `Building.txt` - Building characteristics
+- `Land.txt` - Land parcel information
+- `Values.txt` - Property valuations
+- `Exemptions.txt` - Tax exemptions
+- `LookupLandUseCodes.txt` - Land use code definitions
+- `LookupDeedType.txt` - Deed type definitions
+- `LookupNeighborhoodCode.txt` - Neighborhood code definitions
+- `LookupExemptionCode.txt` - Exemption code definitions
+
+### Import Performance
+
+- Full import of ~300K+ records typically takes 30-60 minutes
+- Data is inserted in batches of 1000 records
+- Progress is logged to console
+- Errors are captured and reported
+
+### Data Updates
+
+To update data periodically (e.g., monthly when county releases new data):
+
+1. Download latest data files from county property appraiser
+2. Replace files in `data/Sarasota County/SCPA_Detailed_Data/`
+3. Truncate existing tables in Supabase (or the script will append)
+4. Run import script again
+
+---
+
+## System Access
+
+The system uses a login portal where users select their entity type:
+- Property Appraiser
+- Tax Collector
+- County Government
+- City Government
+- Department of Revenue
+- Vacation Rental Broker
+- Property Owner
+
+Each user type is directed to a customized dashboard with role-specific features.
+
 ## API Endpoints
 
 All endpoints are available at `/.netlify/functions/` or `/api/`:
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/properties` | GET | List all properties |
+| `/api/properties` | GET | List all properties (supports ?search and ?scenario) |
+| `/api/properties/lookup` | GET | Broker TDT lookup (?pid, ?tdt, or ?address) |
 | `/api/properties/:id` | GET | Get property with payments |
-| `/api/properties` | POST | Create new property |
+| `/api/properties` | POST | Create new property (register for TDT) |
 | `/api/properties/:id` | PUT | Update property |
 | `/api/properties/:id/register` | POST | Register property for TDT |
 | `/api/payments` | GET | List all payments |
 | `/api/payments` | POST | Record new payment |
 | `/api/dealers` | GET | List active dealers |
 | `/api/stats` | GET | Get dashboard statistics |
+
+### Property Data Fields
+
+Properties include the following fields:
+- **Owner Information**: owner_name
+- **Location**: address, city, county_name, zip_code, lat, lng
+- **Identification**: parcel_id (PID), tdt_number
+- **Status**: is_registered, is_active, active_date, inactive_date
+- **Compliance**: homestead_status, zoning_type, compliance_scenario
+- **Dates**: registration_date, created_at, updated_at
 
 ---
 
@@ -113,10 +238,36 @@ All endpoints are available at `/.netlify/functions/` or `/api/`:
 
 **TDT (Tourist Development Tax):** A state-mandated "Bed Tax" collected on transient accommodations (rentals under 6 months).
 
-**Dealers:** Platforms like Airbnb, VRBO, Booking.com that collect and remit TDT on behalf of property owners.
+**PID (Property Identification Number):** Also known as Assessor's Parcel Number (APN), used by Property Appraisers.
 
-**Compliance Scenarios:**
-1. Not registered and did not pay TDT
-2. Not registered, but paid TDT anyway
-3. Registered but did not pay TDT
-4. Registered but paid the wrong amount of TDT
+**Dealers/Brokers:** Platforms like Airbnb, VRBO, Booking.com that collect and remit TDT on behalf of property owners.
+
+**Transient Accommodations:** Short-term rentals (less than 6 months) subject to TDT.
+
+### Compliance Scenarios
+
+Tax Collectors monitor four key scenarios:
+1. Parcel does NOT have TDT# and someone sent in money
+2. Parcel DOES have TDT# and no money was collected
+3. Parcel DOES have TDT# but wrong amount of money was sent
+4. Parcel does NOT have TDT# and NO money was sent
+
+### Legislative Requirements
+
+Florida legislation mandates:
+- All Vacation Rental Brokers must make customers register for a TDT#
+- When Vacation Rental Brokers send funds to Tax Collector, it must have TDT#
+- All Property Owners must have a TDT# if renting transient accommodations
+
+### Potential Users/Customers
+
+- Property Appraiser
+- Tax Collector
+- County Government
+- Sheriff's Department
+- Zoning Enforcement
+- EMS (Safety Inspections)
+- City Government
+- Department of Revenue (DOR)
+- Vacation Rental Brokers
+- Property Owners (FREE ACCESS)

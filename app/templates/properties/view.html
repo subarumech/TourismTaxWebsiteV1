@@ -21,6 +21,10 @@
     
     <div class="details-grid">
         <div class="detail-item">
+            <span class="detail-label">Owner</span>
+            <span class="detail-value">{{ property.owner_name or '-' }}</span>
+        </div>
+        <div class="detail-item">
             <span class="detail-label">City</span>
             <span class="detail-value">{{ property.city }}</span>
         </div>
@@ -52,7 +56,15 @@
         </div>
         <div class="detail-item">
             <span class="detail-label">Zoning</span>
-            <span class="detail-value">{{ property.zoning_type | capitalize }}</span>
+            <span class="detail-value">{{ property.zoning1 or property.zoning_type | capitalize }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Land Use Code</span>
+            <span class="detail-value">{{ property.land_use_code or '-' }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Neighborhood Code</span>
+            <span class="detail-value">{{ property.neighborhood_code or '-' }}</span>
         </div>
         <div class="detail-item">
             <span class="detail-label">Homestead</span>
@@ -65,6 +77,16 @@
         </div>
         {% endif %}
     </div>
+    
+    {% if property.legal_description1 %}
+    <div style="margin-top: 1rem;">
+        <h4>Legal Description</h4>
+        <p>{{ property.legal_description1 }}</p>
+        {% if property.legal_description2 %}
+        <p>{{ property.legal_description2 }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 </div>
 
@@ -118,6 +140,144 @@
     <p class="empty-state">No payments recorded for this property.</p>
     {% endif %}
 </div>
+
+{% if property.values and property.values|length > 0 %}
+<div class="card">
+    <h3>Property Valuation</h3>
+    {% set value = property.values[0] %}
+    <div class="details-grid">
+        <div class="detail-item">
+            <span class="detail-label">Total Value</span>
+            <span class="detail-value">${{ "{:,.2f}".format(value.total_value) if value.total_value else '-' }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Land Value</span>
+            <span class="detail-value">${{ "{:,.2f}".format(value.land_value) if value.land_value else '-' }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Building Value</span>
+            <span class="detail-value">${{ "{:,.2f}".format(value.building_value) if value.building_value else '-' }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Assessed Value</span>
+            <span class="detail-value">${{ "{:,.2f}".format(value.assessed_value) if value.assessed_value else '-' }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Taxable Value</span>
+            <span class="detail-value">${{ "{:,.2f}".format(value.taxable_value) if value.taxable_value else '-' }}</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if property.buildings and property.buildings|length > 0 %}
+<div class="card">
+    <h3>Building Information</h3>
+    {% set building = property.buildings[0] %}
+    <div class="details-grid">
+        {% if building.year_built %}
+        <div class="detail-item">
+            <span class="detail-label">Year Built</span>
+            <span class="detail-value">{{ building.year_built }}</span>
+        </div>
+        {% endif %}
+        {% if building.full_bath %}
+        <div class="detail-item">
+            <span class="detail-label">Full Bathrooms</span>
+            <span class="detail-value">{{ building.full_bath }}</span>
+        </div>
+        {% endif %}
+        {% if building.half_bath %}
+        <div class="detail-item">
+            <span class="detail-label">Half Bathrooms</span>
+            <span class="detail-value">{{ building.half_bath }}</span>
+        </div>
+        {% endif %}
+        {% if building.primary_floors %}
+        <div class="detail-item">
+            <span class="detail-label">Floors</span>
+            <span class="detail-value">{{ building.primary_floors }}</span>
+        </div>
+        {% endif %}
+        {% if building.units %}
+        <div class="detail-item">
+            <span class="detail-label">Units</span>
+            <span class="detail-value">{{ building.units }}</span>
+        </div>
+        {% endif %}
+        {% if building.percent_air_conditioned %}
+        <div class="detail-item">
+            <span class="detail-label">Air Conditioning</span>
+            <span class="detail-value">{{ building.percent_air_conditioned }}%</span>
+        </div>
+        {% endif %}
+        {% if building.roof_cover %}
+        <div class="detail-item">
+            <span class="detail-label">Roof Cover</span>
+            <span class="detail-value">{{ building.roof_cover }}</span>
+        </div>
+        {% endif %}
+        {% if building.grade %}
+        <div class="detail-item">
+            <span class="detail-label">Grade</span>
+            <span class="detail-value">{{ building.grade }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% if property.sales and property.sales|length > 0 %}
+<div class="card">
+    <h3>Sales History</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Sale Date</th>
+                <th>Sale Price</th>
+                <th>Deed Type</th>
+                <th>Legal Reference</th>
+                <th>Recording Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in property.sales[:10] %}
+            <tr>
+                <td>{{ sale.sale_date.strftime('%Y-%m-%d') if sale.sale_date else '-' }}</td>
+                <td>${{ "{:,.2f}".format(sale.sale_price) if sale.sale_price else '-' }}</td>
+                <td>{{ sale.deed_type or '-' }}</td>
+                <td>{{ sale.legal_reference or '-' }}</td>
+                <td>{{ sale.recording_date.strftime('%Y-%m-%d') if sale.recording_date else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if property.exemptions and property.exemptions|length > 0 %}
+<div class="card">
+    <h3>Tax Exemptions</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Exemption Code</th>
+                <th>Amount</th>
+                <th>App Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exemption in property.exemptions %}
+            <tr>
+                <td>{{ exemption.exemption_code }}</td>
+                <td>${{ "{:,.2f}".format(exemption.amount_off_total_assessment) if exemption.amount_off_total_assessment else '-' }}</td>
+                <td>{{ exemption.app_code or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
 
 {% if property.lat and property.lng %}
 <script>

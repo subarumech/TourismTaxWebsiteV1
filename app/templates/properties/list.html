@@ -29,7 +29,6 @@
                 <th>Parcel ID</th>
                 <th>TDT #</th>
                 <th>Status</th>
-                <th>Scenario</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -45,19 +44,6 @@
                         <span class="badge badge-success">Registered</span>
                     {% else %}
                         <span class="badge badge-warning">Not Registered</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if prop.compliance_scenario == 1 %}
-                        <span class="badge badge-scenario-1">Not registered, did not pay</span>
-                    {% elif prop.compliance_scenario == 2 %}
-                        <span class="badge badge-scenario-2">Not registered, but paid</span>
-                    {% elif prop.compliance_scenario == 3 %}
-                        <span class="badge badge-scenario-3">Registered, did not pay</span>
-                    {% elif prop.compliance_scenario == 4 %}
-                        <span class="badge badge-scenario-4">Registered, paid wrong amount</span>
-                    {% else %}
-                        -
                     {% endif %}
                 </td>
                 <td>

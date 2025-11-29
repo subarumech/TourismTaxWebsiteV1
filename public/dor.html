@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department of Revenue Portal - TDT System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">Department of Revenue Portal</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/dor.html" class="active">Dashboard</a>
+                <a href="/properties.html">Properties</a>
+                <a href="/map.html">Map</a>
+                <a href="/" onclick="sessionStorage.clear();">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>Department of Revenue Dashboard</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-properties">-</div>
+                    <div class="stat-label">Total Properties</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="issued-tdt">-</div>
+                    <div class="stat-label">TDT Numbers Issued</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="active-tdt">-</div>
+                    <div class="stat-label">Active TDT Numbers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="inactive-tdt">-</div>
+                    <div class="stat-label">Inactive TDT Numbers</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>TDT Number Generation</h3>
+                <p class="card-subtitle">Software issues random TDT# with first two digits matching the Florida County Number Map</p>
+                <div style="background: var(--bg-light); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                    <p><strong>Note:</strong> TDT numbers are automatically generated when properties register. The first two digits correspond to the Florida county number (e.g., 58 for Sarasota County).</p>
+                    <p style="margin-top: 0.5rem;"><strong>Format:</strong> <code>CC-XXXXXXXXX</code> (CC = County Code)</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Property Report</h3>
+                    <button class="btn btn-primary" onclick="exportDORReport()">Export CSV</button>
+                </div>
+                <p class="card-subtitle">Complete property list with TDT numbers, status, and location information</p>
+                
+                <div class="toolbar">
+                    <div class="search-form">
+                        <input type="text" id="search-input" placeholder="Search by owner, PID, TDT#, county...">
+                        <select id="county-filter">
+                            <option value="">All Counties</option>
+                            <option value="Sarasota">Sarasota</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="filterProperties()">Search</button>
+                    </div>
+                </div>
+
+                <div id="properties-table">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Department of Revenue - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/dor.js"></script>
+</body>
+</html>
+

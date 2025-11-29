@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register for TDT - Property Owner Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">Property Owner Registration</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/register.html" class="active">Register</a>
+                <a href="/">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>Register Your Property for TDT</h2>
+            </div>
+
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <div style="background: var(--blue-light-1); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border-left: 4px solid var(--blue-3);">
+                    <h3 style="margin-bottom: 0.75rem; color: var(--blue-1);">Who Needs to Register?</h3>
+                    <p style="margin-bottom: 0.5rem;">You must register for a TDT (Tourist Development Tax) number if you:</p>
+                    <ul style="margin-left: 1.5rem; line-height: 1.8;">
+                        <li>Rent your property for transient accommodations (less than 6 months)</li>
+                        <li>List your property on platforms like Airbnb, VRBO, Booking.com, etc.</li>
+                        <li>Operate short-term vacation rentals</li>
+                    </ul>
+                </div>
+
+                <form id="register-form" class="form">
+                    <h3 style="margin-bottom: 1rem;">Property Owner Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="owner_name">Full Name *</label>
+                        <input type="text" id="owner_name" name="owner_name" required placeholder="John Doe">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact_email">Email Address *</label>
+                        <input type="email" id="contact_email" name="contact_email" required placeholder="john@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact_phone">Phone Number</label>
+                        <input type="tel" id="contact_phone" name="contact_phone" placeholder="(555) 123-4567">
+                    </div>
+
+                    <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Property Information</h3>
+
+                    <div class="form-group">
+                        <label for="address">Street Address *</label>
+                        <input type="text" id="address" name="address" required placeholder="123 Beach Rd">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" name="city" required value="Sarasota">
+                        </div>
+                        <div class="form-group">
+                            <label for="county_name">County *</label>
+                            <input type="text" id="county_name" name="county_name" required value="Sarasota">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zip_code">ZIP Code *</label>
+                            <input type="text" id="zip_code" name="zip_code" required placeholder="34236">
+                        </div>
+                        <div class="form-group">
+                            <label for="parcel_id">Parcel ID (if known)</label>
+                            <input type="text" id="parcel_id" name="parcel_id" placeholder="1234-56-7890">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="zoning_type">Property Type *</label>
+                        <select id="zoning_type" name="zoning_type" required>
+                            <option value="residential">Residential</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="mixed">Mixed Use</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="confirm" name="confirm" required>
+                            I confirm this property will be used for transient accommodations (rentals less than 6 months)
+                        </label>
+                    </div>
+
+                    <div style="background: var(--grey-light-1); padding: 1rem; border-radius: var(--radius-md); margin: 1.5rem 0;">
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                            <strong>Note:</strong> Upon submission, a TDT number will be automatically generated and issued. 
+                            You will need this number when working with vacation rental platforms.
+                        </p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Register Property</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Property Owner Registration - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/register.js"></script>
+</body>
+</html>
+

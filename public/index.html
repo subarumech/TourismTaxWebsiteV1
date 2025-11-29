@@ -3,98 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - TDT Tax Collector</title>
+    <title>Login - TDT System</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+        }
+
+        .login-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 1.75rem;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .login-form input,
+        .login-form select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .login-form input:focus,
+        .login-form select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
+        }
+
+        .login-form .btn {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .site-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+    </style>
 </head>
 <body>
-    <header class="site-header">
-        <div class="header-container">
-            <div class="header-branding">
-                <h1 class="site-title">Sarasota County Tax Collector</h1>
-                <p class="site-subtitle">Tourist Development Tax Collection System</p>
-            </div>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>TDT System Login</h1>
+            <p>Tourist Development Tax Collection System</p>
         </div>
-    </header>
 
-    <nav class="main-nav">
-        <div class="nav-container">
-            <div class="nav-links">
-                <a href="/" class="active">Dashboard</a>
-                <a href="/properties.html">Properties</a>
-                <a href="/map.html">Map</a>
-                <a href="/payments.html">Payments</a>
-            </div>
-        </div>
-    </nav>
-
-    <main class="main-content">
-        <div class="content-container">
-            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h2>Dashboard</h2>
-                <button id="sync-btn" class="btn btn-primary" onclick="syncDatabase()">
-                    Update Database
-                </button>
+        <form id="login-form" class="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter username">
             </div>
 
-            <div class="stats-grid" id="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="total-properties">-</div>
-                    <div class="stat-label">Total Properties</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="registered-count">-</div>
-                    <div class="stat-label">Registered for TDT</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="total-collected">-</div>
-                    <div class="stat-label">Total TDT Collected</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="dealer-count">-</div>
-                    <div class="stat-label">Active Dealers</div>
-                </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter password">
             </div>
 
-            <div class="card">
-                <h3>Compliance Scenarios</h3>
-                <p class="card-subtitle">Properties grouped by their compliance status</p>
-                <div class="scenario-grid">
-                    <a href="/properties.html?scenario=1" class="scenario-card scenario-1">
-                        <div class="scenario-count" id="scenario-1">-</div>
-                        <div class="scenario-title">Not registered, did not pay</div>
-                    </a>
-                    <a href="/properties.html?scenario=2" class="scenario-card scenario-2">
-                        <div class="scenario-count" id="scenario-2">-</div>
-                        <div class="scenario-title">Not registered, but paid</div>
-                    </a>
-                    <a href="/properties.html?scenario=3" class="scenario-card scenario-3">
-                        <div class="scenario-count" id="scenario-3">-</div>
-                        <div class="scenario-title">Registered, did not pay</div>
-                    </a>
-                    <a href="/properties.html?scenario=4" class="scenario-card scenario-4">
-                        <div class="scenario-count" id="scenario-4">-</div>
-                        <div class="scenario-title">Registered, paid wrong amount</div>
-                    </a>
-                </div>
+            <div class="form-group">
+                <label for="entity-type">Entity Type</label>
+                <select id="entity-type" name="entity-type" required>
+                    <option value="">Select your entity type...</option>
+                    <option value="property-appraiser">Property Appraiser</option>
+                    <option value="tax-collector">Tax Collector</option>
+                    <option value="county-gov">County Government</option>
+                    <option value="city-gov">City Government</option>
+                    <option value="dor">Department of Revenue</option>
+                    <option value="broker">Vacation Rental Broker</option>
+                    <option value="owner">Property Owner</option>
+                </select>
             </div>
 
-            <div class="card">
-                <h3>Recent Transactions</h3>
-                <div id="transactions-table">
-                    <p class="empty-state">Loading...</p>
-                </div>
-            </div>
-        </div>
-    </main>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
 
     <footer class="site-footer">
         <div class="footer-container">
-            <p>Sarasota County Tax Collector - Tourist Development Tax System</p>
+            <p>Tourist Development Tax Collection System</p>
         </div>
     </footer>
 
-    <script src="/js/api.js"></script>
-    <script src="/js/dashboard.js"></script>
+    <script src="/js/login.js"></script>
 </body>
 </html>
-

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacation Rental Broker Portal - TDT System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">Vacation Rental Broker Portal</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/broker.html" class="active">TDT Lookup</a>
+                <a href="/" onclick="sessionStorage.clear();">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>Vacation Rental Broker Portal</h2>
+            </div>
+
+            <div class="card">
+                <h3>TDT Number Lookup</h3>
+                <p class="card-subtitle">Verify TDT registration for properties before collecting payments</p>
+                
+                <div class="form" style="max-width: 600px;">
+                    <div class="form-group">
+                        <label for="lookup-type">Search By</label>
+                        <select id="lookup-type" onchange="updateLookupPlaceholder()">
+                            <option value="parcel_id">Parcel ID (PID)</option>
+                            <option value="address">Address</option>
+                            <option value="tdt_number">TDT Number</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lookup-value">Search Value</label>
+                        <input type="text" id="lookup-value" placeholder="Enter Parcel ID">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="lookupTDT()">Search</button>
+                </div>
+
+                <div id="lookup-results" style="margin-top: 2rem;"></div>
+            </div>
+
+            <div class="card">
+                <h3>Property Owner Registration</h3>
+                <p class="card-subtitle">If a property owner does not have a TDT#, direct them to register</p>
+                
+                <div style="background: var(--bg-light); padding: 2rem; border-radius: var(--radius-md); text-align: center;">
+                    <p style="margin-bottom: 1.5rem; font-size: 1.05rem;">Property owners can register for a TDT number at:</p>
+                    <a href="/register.html" target="_blank" class="btn btn-primary" style="font-size: 1.1rem;">
+                        Register for TDT Number
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>API Integration</h3>
+                <p class="card-subtitle">Integrate TDT lookup into your platform</p>
+                
+                <div style="background: var(--bg-light); padding: 1.5rem; border-radius: var(--radius-md);">
+                    <h4 style="margin-bottom: 1rem;">API Endpoint</h4>
+                    <code style="display: block; padding: 1rem; background: white; border-radius: var(--radius); margin-bottom: 1rem;">
+                        GET /api/properties/lookup?pid={parcel_id}
+                    </code>
+                    
+                    <h4 style="margin-bottom: 1rem; margin-top: 1.5rem;">Example Response</h4>
+                    <pre style="background: white; padding: 1rem; border-radius: var(--radius); overflow-x: auto; font-size: 0.85rem;">
+{
+  "property": {
+    "parcel_id": "1234-56-7890",
+    "tdt_number": "58-123456789",
+    "owner_name": "John Doe",
+    "address": "123 Beach Rd",
+    "is_active": true,
+    "active_date": "2024-01-15"
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Important Requirements</h3>
+                <div style="background: var(--blue-light-1); padding: 1.5rem; border-radius: var(--radius-md); border-left: 4px solid var(--blue-3);">
+                    <ul style="margin-left: 1.5rem; line-height: 1.8;">
+                        <li><strong>Mandate:</strong> All Vacation Rental Brokers must make customers register for a TDT#</li>
+                        <li><strong>Payment Requirements:</strong> When sending funds to Tax Collector, payments must include TDT#</li>
+                        <li><strong>Active Status:</strong> Only collect TDT for properties with active TDT numbers</li>
+                        <li><strong>Verification:</strong> Verify TDT status before each rental period</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Vacation Rental Broker Portal - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/broker.js"></script>
+</body>
+</html>
+

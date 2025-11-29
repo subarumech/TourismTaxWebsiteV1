@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>County Government Portal - TDT System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-branding">
+                <h1 class="site-title">County Government Portal</h1>
+                <p class="site-subtitle">Tourist Development Tax Collection System</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/county-gov.html" class="active">Dashboard</a>
+                <a href="/properties.html">Properties</a>
+                <a href="/map.html">Map Lookup</a>
+                <a href="/" onclick="sessionStorage.clear();">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="content-container">
+            <div class="page-header">
+                <h2>County Government Dashboard</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-properties">-</div>
+                    <div class="stat-label">Total Properties</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="active-tdt">-</div>
+                    <div class="stat-label">Active TDT Properties</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="zoning-violations">-</div>
+                    <div class="stat-label">Potential Zoning Issues</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Property Report</h3>
+                    <button class="btn btn-primary" onclick="exportCountyReport()">Export CSV</button>
+                </div>
+                <p class="card-subtitle">Map lookup necessary to check zones for TDT# conducting transient accommodations in areas not allowed</p>
+                
+                <div class="toolbar">
+                    <div class="search-form">
+                        <input type="text" id="search-input" placeholder="Search by owner, PID, TDT#, address...">
+                        <select id="status-filter">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active Only</option>
+                            <option value="inactive">Inactive Only</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="filterProperties()">Search</button>
+                    </div>
+                </div>
+
+                <div id="properties-table">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>County Government - Tourist Development Tax System</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/county-gov.js"></script>
+</body>
+</html>
+
