@@ -1,17 +1,3 @@
-[build]
-  publish = "public"
-  functions = "netlify/functions"
-
-[functions]
-  node_bundler = "esbuild"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# This file is not used for deployment (using Docker + Cloudflare instead)
+# The netlify/ folder is kept only for shared function libraries used by server.js
 

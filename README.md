@@ -2,7 +2,7 @@
 
 A multi-stakeholder web application for managing Tourist Development Tax (TDT) compliance across Florida. The system serves Property Appraisers, Tax Collectors, County and City Governments, Department of Revenue, Vacation Rental Brokers, and Property Owners.
 
-**Live Demo:** Deploy to Netlify (see instructions below)
+**Live Demo:** https://tdt-web.com
 
 ## User Types & Features
 
@@ -52,9 +52,9 @@ A multi-stakeholder web application for managing Tourist Development Tax (TDT) c
 ## Tech Stack
 
 - **Frontend:** Static HTML/CSS/JavaScript
-- **Backend:** Netlify Functions (serverless)
+- **Backend:** Express.js (Node.js)
 - **Database:** Supabase (PostgreSQL)
-- **Hosting:** Netlify
+- **Hosting:** Self-hosted on Synology NAS with Docker + Cloudflare CDN
 
 ---
 
@@ -70,39 +70,7 @@ A multi-stakeholder web application for managing Tourist Development Tax (TDT) c
    - Project URL (e.g., `https://xxxxx.supabase.co`)
    - `anon` public key
 
-### 2. Deploy to Netlify
-
-1. Go to [netlify.com](https://netlify.com) and sign in with GitHub
-2. Click **"Add new site"** > **"Import an existing project"**
-3. Select this GitHub repository
-4. Configure build settings:
-   - **Build command:** (leave empty)
-   - **Publish directory:** `public`
-5. Click **"Deploy site"**
-
-### 3. Set Environment Variables
-
-In Netlify dashboard:
-1. Go to **Site settings** > **Environment variables**
-2. Add these variables:
-   ```
-   SUPABASE_URL=https://your-project.supabase.co
-   SUPABASE_ANON_KEY=your-anon-key
-   ```
-3. Trigger a redeploy
-
-### 4. (Optional) Set Up Google Maps
-
-To enable property location maps:
-1. Get a Google Maps API key from [Google Cloud Console](https://console.cloud.google.com/)
-2. Enable the **Maps JavaScript API**
-3. Update the API key in `public/property-detail.html`
-
----
-
-## Self-Hosting on Synology NAS (Docker)
-
-If you've reached Netlify limits or want complete control, you can host this on your own Synology NAS using Docker.
+### 2. Deploy to Synology NAS (Docker)
 
 ### Prerequisites
 
@@ -110,7 +78,7 @@ If you've reached Netlify limits or want complete control, you can host this on 
 2. SSH access enabled on your NAS
 3. Supabase database already set up (see step 1 above)
 
-### Initial Setup
+**Initial Setup:**
 
 1. **Create environment file on your NAS:**
 
@@ -131,39 +99,27 @@ If you've reached Netlify limits or want complete control, you can host this on 
 
 2. **Set up SSH key authentication** (optional but recommended):
    ```bash
-   ssh-copy-id admin@192.168.1.74
+   ssh-copy-id gravy23@192.168.1.74
    ```
 
-### Deploy the Application
+**Deploy the Application:**
 
 From your local development machine, simply run:
 
 ```bash
-./deploy.sh
+./quick-deploy.sh
 ```
 
-The script will:
-- Package your code
+This one-step script will:
+- Package your code (excluding unnecessary files)
 - Transfer it to the NAS via SSH
 - Build the Docker image
 - Start/restart the container
+- The entire deployment takes about 30-45 seconds
 
-The app will be available at: `http://192.168.1.74:3000`
+The app will be available locally at: `http://192.168.1.74:3000`
 
-### Updating the App
-
-**Quick Deploy (Recommended):**
-```bash
-./deploy.sh && ssh -t gravy23@192.168.1.74 "cd /volume1/docker/tdt-tax-collector && sudo ./deploy-local.sh"
-```
-
-This transfers your code and rebuilds the container. You'll be prompted for your NAS password once.
-
-**Alternative - Two-step Deploy:**
-1. First, sync your code: `./deploy.sh` (no password needed)
-2. Then SSH in and run: `ssh gravy23@192.168.1.74` then `cd /volume1/docker/tdt-tax-collector && sudo ./deploy-local.sh`
-
-The entire deployment takes about 30-45 seconds.
+**For production access**, configure Cloudflare to proxy your domain to your NAS IP address.
 
 ### Managing the Container
 
@@ -190,6 +146,7 @@ docker-compose up -d --build
 - **Port:** Default is 3000, change in `docker-compose.yml` if needed
 - **Auto-restart:** Container automatically restarts on NAS reboot
 - **Environment variables:** Edit `/volume1/docker/tdt-tax-collector/.env` on the NAS
+- **Cloudflare:** Configure your domain's DNS to proxy traffic to your NAS IP
 
 ### Troubleshooting
 
@@ -200,6 +157,8 @@ docker-compose up -d --build
   - `supabase/schema.sql` (creates tables and basic policies)
   - `supabase/add_insert_policies.sql` (adds insert policies for county data tables)
   - `supabase/fix_missing_policies.sql` (adds missing insert policy for dealers table)
+- Check browser console for JavaScript errors
+- Verify API endpoints are responding: `curl http://192.168.1.74:3000/api/stats`
 
 **"The string did not match the expected pattern" error:**
 - This typically means there's an issue with Supabase RLS policies
@@ -207,7 +166,7 @@ docker-compose up -d --build
 - Make sure all required environment variables are set in the `.env` file
 
 **Deployment fails:**
-1. Verify SSH access: `ssh admin@192.168.1.74`
+1. Verify SSH access: `ssh gravy23@192.168.1.74`
 2. Check Container Manager is installed on your NAS
 3. Ensure the NAS has internet access for pulling Docker images
 4. Check logs: SSH into NAS and run `cd /volume1/docker/tdt-tax-collector && docker-compose logs`
@@ -218,7 +177,7 @@ docker-compose up -d --build
 
 There are two ways to run the application locally:
 
-### Option 1: Using the Express Server (Recommended for Local)
+### Using the Express Server
 
 ```bash
 # Install dependencies
@@ -234,24 +193,7 @@ npm start
 
 Then open http://localhost:3000
 
-The Express server automatically uses `/api/` endpoints instead of Netlify Functions.
-
-### Option 2: Using Netlify Dev (for testing Netlify deployment)
-
-```bash
-# Install dependencies
-npm install
-
-# Install Netlify CLI globally
-npm install -g netlify-cli
-
-# Run local dev server
-netlify dev
-```
-
-Then open http://localhost:8888
-
-**Note:** If you're self-hosting (not using Netlify), Option 1 (Express Server) is recommended. The application now uses `/api/` endpoints for the Express server deployment.
+The Express server uses `/api/` endpoints to communicate with Supabase.
 
 ---
 
@@ -339,7 +281,7 @@ Each user type is directed to a customized dashboard with role-specific features
 
 ## API Endpoints
 
-All endpoints are available at `/.netlify/functions/` or `/api/`:
+All endpoints are available at `/api/`:
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
