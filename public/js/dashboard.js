@@ -6,15 +6,17 @@ async function loadDashboard() {
   try {
     const stats = await fetchApi('/stats');
     
-    document.getElementById('total-properties').textContent = stats.totalProperties;
-    document.getElementById('registered-count').textContent = stats.registeredCount;
-    document.getElementById('total-collected').textContent = formatCurrency(stats.totalCollected);
-    document.getElementById('dealer-count').textContent = stats.dealerCount;
+    console.log('Dashboard stats loaded:', stats);
     
-    document.getElementById('scenario-1').textContent = stats.scenarioCounts[1] || 0;
-    document.getElementById('scenario-2').textContent = stats.scenarioCounts[2] || 0;
-    document.getElementById('scenario-3').textContent = stats.scenarioCounts[3] || 0;
-    document.getElementById('scenario-4').textContent = stats.scenarioCounts[4] || 0;
+    document.getElementById('total-properties').textContent = stats.totalProperties.toLocaleString();
+    document.getElementById('registered-count').textContent = stats.registeredCount.toLocaleString();
+    document.getElementById('total-collected').textContent = formatCurrency(stats.totalCollected);
+    document.getElementById('dealer-count').textContent = stats.dealerCount.toLocaleString();
+    
+    document.getElementById('scenario-1').textContent = (stats.scenarioCounts[1] || 0).toLocaleString();
+    document.getElementById('scenario-2').textContent = (stats.scenarioCounts[2] || 0).toLocaleString();
+    document.getElementById('scenario-3').textContent = (stats.scenarioCounts[3] || 0).toLocaleString();
+    document.getElementById('scenario-4').textContent = (stats.scenarioCounts[4] || 0).toLocaleString();
     
     renderTransactions(stats.recentTransactions);
   } catch (err) {
