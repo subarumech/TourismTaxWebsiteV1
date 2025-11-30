@@ -1,5 +1,6 @@
-const countyEntities = ['property-appraiser', 'tax-collector', 'county-gov'];
+const countyEntities = ['property-appraiser', 'tax-collector', 'county-gov', 'broker', 'owner'];
 const municipalityEntities = ['city-gov'];
+const stateEntities = ['dor'];
 
 const floridaCounties = [
     { code: '11', name: 'Alachua' },
@@ -124,6 +125,16 @@ const floridaMunicipalities = [
     'Westlake', 'Weston', 'Wewahitchka', 'White Springs', 'Wildwood', 'Wilton Manors', 'Windermere', 'Winter Garden',
     'Winter Haven', 'Winter Park', 'Winter Springs', 'Yankeetown', 'Zephyrhills', 'Zolfo Springs'
 ];
+
+let supabase;
+let currentAccount = null;
+
+function initSupabase() {
+    const SUPABASE_URL = 'https://qktipxxjiumhsceoonjc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrdGlweHhqaXVtaHNjZW9vbmpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzNTAxNjEsImV4cCI6MjA3OTkyNjE2MX0.VW_I4w6FRdWtTu1rOttNSq4GHlE6EqFoLZVnZlFrWi4';
+    
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
 
 function initCustomDropdown(dropdownId, hiddenInputId, onChange) {
     const dropdown = document.getElementById(dropdownId);
@@ -341,26 +352,179 @@ function handleEntityTypeChange() {
     }
 }
 
-function initializeLogin() {
-    console.log('Initializing login page...');
-    console.log('Document ready state:', document.readyState);
+function showSection(sectionId) {
+    document.getElementById('region-selection-section').style.display = 'none';
+    document.getElementById('loading-section').style.display = 'none';
+    document.getElementById('credentials-section').style.display = 'none';
+    document.getElementById('no-account-section').style.display = 'none';
     
-    const stateDropdown = document.getElementById('state-dropdown');
-    const entityDropdown = document.getElementById('entity-type-dropdown');
-    const countyDropdown = document.getElementById('county-dropdown');
-    const municipalityDropdown = document.getElementById('municipality-dropdown');
+    document.getElementById(sectionId).style.display = 'block';
+}
+
+function getRegionLabel() {
+    const state = document.getElementById('state').value;
+    const entityType = document.getElementById('entity-type').value;
+    const county = document.getElementById('county').value;
+    const municipality = document.getElementById('municipality').value;
     
-    console.log('Dropdown elements found:', {
-        state: !!stateDropdown,
-        entity: !!entityDropdown,
-        county: !!countyDropdown,
-        municipality: !!municipalityDropdown
-    });
+    let region = 'Florida';
     
-    if (!stateDropdown || !entityDropdown) {
-        console.error('Critical dropdown elements missing!');
+    if (countyEntities.includes(entityType) && county) {
+        const countyObj = floridaCounties.find(c => c.code === county);
+        region = countyObj ? `${countyObj.name} County` : region;
+    } else if (municipalityEntities.includes(entityType) && municipality) {
+        region = municipality;
+    }
+    
+    const entityLabels = {
+        'property-appraiser': 'Property Appraiser',
+        'tax-collector': 'Tax Collector',
+        'county-gov': 'County Government',
+        'city-gov': 'City Government',
+        'dor': 'Department of Revenue',
+        'broker': 'Vacation Rental Broker',
+        'owner': 'Property Owner'
+    };
+    
+    return `${region} - ${entityLabels[entityType] || entityType}`;
+}
+
+async function checkAccountExists() {
+    const state = document.getElementById('state').value;
+    const entityType = document.getElementById('entity-type').value;
+    const county = document.getElementById('county').value;
+    const municipality = document.getElementById('municipality').value;
+    
+    if (!state || !entityType) {
+        alert('Please select state and entity type');
+        return false;
+    }
+    
+    if (countyEntities.includes(entityType) && !county) {
+        alert('Please select your county');
+        return false;
+    }
+    
+    if (municipalityEntities.includes(entityType) && !municipality) {
+        alert('Please select your municipality');
+        return false;
+    }
+    
+    showSection('loading-section');
+    
+    try {
+        let query = supabase
+            .from('office_accounts')
+            .select('*')
+            .eq('state_code', state)
+            .eq('entity_type', entityType)
+            .eq('is_active', true);
+        
+        if (countyEntities.includes(entityType)) {
+            query = query.eq('county_code', county).is('municipality_name', null);
+        } else if (municipalityEntities.includes(entityType)) {
+            query = query.eq('municipality_name', municipality).is('county_code', null);
+        } else if (stateEntities.includes(entityType)) {
+            query = query.is('county_code', null).is('municipality_name', null);
+        }
+        
+        const { data, error } = await query.single();
+        
+        if (error) {
+            if (error.code === 'PGRST116') {
+                const regionLabel = getRegionLabel();
+                document.getElementById('no-account-message').textContent = 
+                    `No account exists under ${regionLabel}.`;
+                showSection('no-account-section');
+                return false;
+            }
+            throw error;
+        }
+        
+        if (data) {
+            currentAccount = data;
+            showSection('credentials-section');
+            document.getElementById('username').focus();
+            return true;
+        }
+    } catch (error) {
+        console.error('Error checking account:', error);
+        alert('An error occurred while checking for your account. Please try again.');
+        showSection('region-selection-section');
+        return false;
+    }
+}
+
+function handleBack() {
+    currentAccount = null;
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    showSection('region-selection-section');
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+    
+    if (!currentAccount) {
+        alert('No account loaded. Please go back and try again.');
         return;
     }
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    if (!username || !password) {
+        alert('Please enter username and password');
+        return;
+    }
+    
+    if (username !== currentAccount.username) {
+        alert('Invalid username');
+        return;
+    }
+    
+    if (password !== currentAccount.password_hash) {
+        alert('Invalid password');
+        return;
+    }
+    
+    const state = document.getElementById('state').value;
+    const entityType = document.getElementById('entity-type').value;
+    const county = document.getElementById('county').value;
+    const municipality = document.getElementById('municipality').value;
+    
+    sessionStorage.setItem('username', username);
+    sessionStorage.setItem('state', state);
+    sessionStorage.setItem('entityType', entityType);
+    sessionStorage.setItem('officeName', currentAccount.office_name);
+    
+    if (countyEntities.includes(entityType)) {
+        sessionStorage.setItem('county', county);
+        const countyName = floridaCounties.find(c => c.code === county)?.name || county;
+        sessionStorage.setItem('countyName', countyName);
+    }
+    
+    if (municipalityEntities.includes(entityType)) {
+        sessionStorage.setItem('municipality', municipality);
+    }
+    
+    const redirectMap = {
+        'property-appraiser': '/property-appraiser.html',
+        'tax-collector': '/tax-collector.html',
+        'county-gov': '/county-gov.html',
+        'city-gov': '/city-gov.html',
+        'dor': '/dor.html',
+        'broker': '/broker.html',
+        'owner': '/register.html'
+    };
+    
+    window.location.href = redirectMap[entityType] || '/tax-collector.html';
+}
+
+function initializeLogin() {
+    console.log('Initializing login page...');
+    
+    initSupabase();
     
     initCustomDropdown('state-dropdown', 'state', function(value) {
         console.log('State changed to:', value);
@@ -375,65 +539,27 @@ function initializeLogin() {
     initCustomDropdown('county-dropdown', 'county');
     initCustomDropdown('municipality-dropdown', 'municipality');
     
-    console.log('All dropdowns initialized');
-    
-    const loginForm = document.getElementById('login-form');
-    if (!loginForm) {
-        console.error('Login form not found!');
-        return;
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', checkAccountExists);
     }
     
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const state = document.getElementById('state').value;
-        const entityType = document.getElementById('entity-type').value;
-        const county = document.getElementById('county').value;
-        const municipality = document.getElementById('municipality').value;
-        
-        if (!username || !password || !state || !entityType) {
-            alert('Please fill in all required fields');
-            return;
-        }
-        
-        if (countyEntities.includes(entityType) && !county) {
-            alert('Please select your county');
-            return;
-        }
-        
-        if (municipalityEntities.includes(entityType) && !municipality) {
-            alert('Please select your municipality');
-            return;
-        }
-        
-        sessionStorage.setItem('username', username);
-        sessionStorage.setItem('state', state);
-        sessionStorage.setItem('entityType', entityType);
-        
-        if (countyEntities.includes(entityType)) {
-            sessionStorage.setItem('county', county);
-            const countyName = floridaCounties.find(c => c.code === county)?.name || county;
-            sessionStorage.setItem('countyName', countyName);
-        }
-        
-        if (municipalityEntities.includes(entityType)) {
-            sessionStorage.setItem('municipality', municipality);
-        }
-        
-        const redirectMap = {
-            'property-appraiser': '/property-appraiser.html',
-            'tax-collector': '/tax-collector.html',
-            'county-gov': '/county-gov.html',
-            'city-gov': '/city-gov.html',
-            'dor': '/dor.html',
-            'broker': '/broker.html',
-            'owner': '/register.html'
-        };
-        
-        window.location.href = redirectMap[entityType] || '/tax-collector.html';
-    });
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) {
+        backBtn.addEventListener('click', handleBack);
+    }
+    
+    const backBtnNoAccount = document.getElementById('back-btn-no-account');
+    if (backBtnNoAccount) {
+        backBtnNoAccount.addEventListener('click', handleBack);
+    }
+    
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    
+    console.log('Login initialization complete');
 }
 
 if (document.readyState === 'loading') {

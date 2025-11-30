@@ -152,6 +152,7 @@
             color: var(--text-primary);
             box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
             display: none;
+            z-index: 10;
         }
 
         .custom-dropdown-input:focus {
@@ -164,6 +165,7 @@
 
         .custom-dropdown.open .custom-dropdown-button {
             visibility: hidden;
+            pointer-events: none;
         }
 
         .custom-dropdown-option.hidden {
@@ -213,6 +215,59 @@
             left: 0;
             right: 0;
         }
+
+        .loading-section {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-section p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .no-account-section {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+
+        .no-account-section .error-message {
+            color: #d32f2f;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-account-section .contact-info {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .no-account-section .btn-secondary {
+            margin-top: 1.5rem;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .no-account-section .btn-secondary:hover {
+            background: var(--border-color);
+        }
     </style>
 </head>
 <body>
@@ -223,75 +278,101 @@
         </div>
 
         <form id="login-form" class="login-form">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Enter username">
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Enter password">
-            </div>
-
-            <div class="form-group">
-                <label for="state">State</label>
-                <div class="custom-dropdown" id="state-dropdown">
-                    <button type="button" class="custom-dropdown-button" id="state-button" aria-haspopup="listbox" aria-expanded="false">
-                        <span class="custom-dropdown-placeholder">Select your state...</span>
-                    </button>
-                    <input type="text" class="custom-dropdown-input" placeholder="Search states..." autocomplete="off">
-                    <div class="custom-dropdown-options" role="listbox" id="state-options">
-                        <div class="custom-dropdown-option" data-value="FL" role="option">Florida</div>
+            <!-- Step 1: Region Selection (Always visible) -->
+            <div id="region-selection-section">
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <div class="custom-dropdown" id="state-dropdown">
+                        <button type="button" class="custom-dropdown-button" id="state-button" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="custom-dropdown-placeholder">Select your state...</span>
+                        </button>
+                        <input type="text" class="custom-dropdown-input" placeholder="Search states..." autocomplete="off">
+                        <div class="custom-dropdown-options" role="listbox" id="state-options">
+                            <div class="custom-dropdown-option" data-value="FL" role="option">Florida</div>
+                        </div>
                     </div>
+                    <input type="hidden" id="state" name="state" required>
                 </div>
-                <input type="hidden" id="state" name="state" required>
-            </div>
 
-            <div class="form-group">
-                <label for="entity-type">Entity Type</label>
-                <div class="custom-dropdown" id="entity-type-dropdown">
-                    <button type="button" class="custom-dropdown-button" id="entity-type-button" aria-haspopup="listbox" aria-expanded="false">
-                        <span class="custom-dropdown-placeholder">Select your entity type...</span>
-                    </button>
-                    <input type="text" class="custom-dropdown-input" placeholder="Search entity types..." autocomplete="off">
-                    <div class="custom-dropdown-options" role="listbox" id="entity-type-options">
-                        <div class="custom-dropdown-option" data-value="property-appraiser" role="option">Property Appraiser</div>
-                        <div class="custom-dropdown-option" data-value="tax-collector" role="option">Tax Collector</div>
-                        <div class="custom-dropdown-option" data-value="county-gov" role="option">County Government</div>
-                        <div class="custom-dropdown-option" data-value="city-gov" role="option">City Government</div>
-                        <div class="custom-dropdown-option" data-value="dor" role="option">Department of Revenue</div>
-                        <div class="custom-dropdown-option" data-value="broker" role="option">Vacation Rental Broker</div>
-                        <div class="custom-dropdown-option" data-value="owner" role="option">Property Owner</div>
+                <div class="form-group">
+                    <label for="entity-type">Entity Type</label>
+                    <div class="custom-dropdown" id="entity-type-dropdown">
+                        <button type="button" class="custom-dropdown-button" id="entity-type-button" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="custom-dropdown-placeholder">Select your entity type...</span>
+                        </button>
+                        <input type="text" class="custom-dropdown-input" placeholder="Search entity types..." autocomplete="off">
+                        <div class="custom-dropdown-options" role="listbox" id="entity-type-options">
+                            <div class="custom-dropdown-option" data-value="property-appraiser" role="option">Property Appraiser</div>
+                            <div class="custom-dropdown-option" data-value="tax-collector" role="option">Tax Collector</div>
+                            <div class="custom-dropdown-option" data-value="county-gov" role="option">County Government</div>
+                            <div class="custom-dropdown-option" data-value="city-gov" role="option">City Government</div>
+                            <div class="custom-dropdown-option" data-value="dor" role="option">Department of Revenue</div>
+                            <div class="custom-dropdown-option" data-value="broker" role="option">Vacation Rental Broker</div>
+                            <div class="custom-dropdown-option" data-value="owner" role="option">Property Owner</div>
+                        </div>
                     </div>
+                    <input type="hidden" id="entity-type" name="entity-type" required>
                 </div>
-                <input type="hidden" id="entity-type" name="entity-type" required>
+
+                <div class="form-group" id="county-group" style="display: none;">
+                    <label for="county">County</label>
+                    <div class="custom-dropdown" id="county-dropdown">
+                        <button type="button" class="custom-dropdown-button" id="county-button" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="custom-dropdown-placeholder">Select your county...</span>
+                        </button>
+                        <input type="text" class="custom-dropdown-input" placeholder="Search counties..." autocomplete="off">
+                        <div class="custom-dropdown-options" role="listbox" id="county-options"></div>
+                    </div>
+                    <input type="hidden" id="county" name="county">
+                </div>
+
+                <div class="form-group" id="municipality-group" style="display: none;">
+                    <label for="municipality">Municipality</label>
+                    <div class="custom-dropdown" id="municipality-dropdown">
+                        <button type="button" class="custom-dropdown-button" id="municipality-button" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="custom-dropdown-placeholder">Select your municipality...</span>
+                        </button>
+                        <input type="text" class="custom-dropdown-input" placeholder="Search municipalities..." autocomplete="off">
+                        <div class="custom-dropdown-options" role="listbox" id="municipality-options"></div>
+                    </div>
+                    <input type="hidden" id="municipality" name="municipality">
+                </div>
+
+                <button type="button" id="next-btn" class="btn btn-primary">Next</button>
             </div>
 
-            <div class="form-group" id="county-group" style="display: none;">
-                <label for="county">County</label>
-                <div class="custom-dropdown" id="county-dropdown">
-                    <button type="button" class="custom-dropdown-button" id="county-button" aria-haspopup="listbox" aria-expanded="false">
-                        <span class="custom-dropdown-placeholder">Select your county...</span>
-                    </button>
-                    <input type="text" class="custom-dropdown-input" placeholder="Search counties..." autocomplete="off">
-                    <div class="custom-dropdown-options" role="listbox" id="county-options"></div>
-                </div>
-                <input type="hidden" id="county" name="county">
+            <!-- Step 2: Loading -->
+            <div id="loading-section" class="loading-section" style="display: none;">
+                <div class="spinner"></div>
+                <p>Checking for account...</p>
             </div>
 
-            <div class="form-group" id="municipality-group" style="display: none;">
-                <label for="municipality">Municipality</label>
-                <div class="custom-dropdown" id="municipality-dropdown">
-                    <button type="button" class="custom-dropdown-button" id="municipality-button" aria-haspopup="listbox" aria-expanded="false">
-                        <span class="custom-dropdown-placeholder">Select your municipality...</span>
-                    </button>
-                    <input type="text" class="custom-dropdown-input" placeholder="Search municipalities..." autocomplete="off">
-                    <div class="custom-dropdown-options" role="listbox" id="municipality-options"></div>
+            <!-- Step 3A: Credentials (shown if account exists) -->
+            <div id="credentials-section" style="display: none;">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" autocomplete="username">
                 </div>
-                <input type="hidden" id="municipality" name="municipality">
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="button" id="back-btn" class="btn btn-secondary" style="margin-top: 0.5rem;">Back</button>
             </div>
 
-            <button type="submit" class="btn btn-primary">Login</button>
+            <!-- Step 3B: No Account Found -->
+            <div id="no-account-section" class="no-account-section" style="display: none;">
+                <p class="error-message" id="no-account-message">No account exists under this region and entity.</p>
+                <div class="contact-info">
+                    <p>Please contact us to set up your office:</p>
+                    <p><strong>Email:</strong> xyz123@tdt-web.com</p>
+                    <p><strong>Phone:</strong> (888) 123-4567</p>
+                </div>
+                <button type="button" id="back-btn-no-account" class="btn btn-secondary">Back</button>
+            </div>
         </form>
     </div>
 
@@ -301,6 +382,7 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/js/login.js"></script>
 </body>
 </html>
