@@ -1,13 +1,16 @@
 #!/bin/bash
 
+# Full deploy script - syncs files only
+# For a full deploy with container rebuild, use quick-deploy.sh
+
 NAS_HOST="192.168.1.74"
 NAS_USER="gravy23"
 NAS_PROJECT_DIR="/volume1/docker/tdt-tax-collector"
-PROJECT_NAME="tdt-tax-collector"
+DOCKER_COMPOSE="/usr/local/bin/docker-compose"
 
-echo "🚀 Deploying Tax Collector to NAS..."
+echo "Deploying Tax Collector to NAS..."
 
-echo "📦 Creating deployment archive..."
+echo "Creating deployment archive..."
 tar -czf deploy.tar.gz \
   --exclude='node_modules' \
   --exclude='venv' \
@@ -21,47 +24,39 @@ tar -czf deploy.tar.gz \
   --exclude='supabase' \
   --exclude='deploy.tar.gz' \
   --exclude='nas-docker.plan.md' \
-  .
+  . 2>/dev/null
 
-echo "📤 Transferring files to NAS..."
+echo "Transferring files to NAS..."
 cat deploy.tar.gz | ssh ${NAS_USER}@${NAS_HOST} "cat > /tmp/deploy.tar.gz"
 
 if [ $? -ne 0 ]; then
-  echo "❌ Transfer failed. Trying alternative method..."
-  ssh ${NAS_USER}@${NAS_HOST} "mkdir -p /tmp"
-  cat deploy.tar.gz | ssh ${NAS_USER}@${NAS_HOST} "dd of=/tmp/deploy.tar.gz"
+  echo "Transfer failed!"
+  rm -f deploy.tar.gz
+  exit 1
 fi
 
-echo "🔨 Extracting files on NAS..."
+echo "Extracting files on NAS..."
 ssh ${NAS_USER}@${NAS_HOST} << 'EOF'
   cd /volume1/docker
-  
-  if [ ! -d "tdt-tax-collector" ]; then
-    echo "Creating project directory..."
-    mkdir -p tdt-tax-collector
-  fi
-  
+  mkdir -p tdt-tax-collector
   cd tdt-tax-collector
-  
-  tar -xzf /tmp/deploy.tar.gz
+  tar -xzf /tmp/deploy.tar.gz 2>/dev/null
   rm /tmp/deploy.tar.gz
   
   if [ ! -f ".env" ]; then
-    echo "⚠️  Warning: .env file not found. Please create one with your Supabase credentials."
-    echo "Copy .env.example to .env and fill in your values."
+    echo "Warning: .env file not found. Create one with your Supabase credentials."
   fi
 EOF
-
-echo "🔨 Building and restarting container..."
-ssh -t ${NAS_USER}@${NAS_HOST} "cd /volume1/docker/tdt-tax-collector && sudo ./deploy-local.sh"
 
 rm deploy.tar.gz
 
 echo ""
-echo "✨ Deploy finished! Your app should be running at:"
-echo "   http://${NAS_HOST}:3000"
+echo "Files synced successfully!"
 echo ""
-echo "To check logs, SSH into your NAS and run:"
-echo "   ssh ${NAS_USER}@${NAS_HOST}"
-echo "   cd ${NAS_PROJECT_DIR} && docker-compose logs -f"
+echo "To rebuild the container, SSH into NAS and run:"
+echo "  ssh ${NAS_USER}@${NAS_HOST}"
+echo "  cd ${NAS_PROJECT_DIR}"
+echo "  sudo ${DOCKER_COMPOSE} down && sudo ${DOCKER_COMPOSE} up -d --build"
+echo ""
+echo "Or use quick-deploy.sh in a terminal for an interactive deploy."
 

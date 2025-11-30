@@ -44,6 +44,77 @@ function wrapHandler(netlifyHandler) {
   };
 }
 
+app.get('/api/states', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('states')
+      .select('*')
+      .order('name');
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/states/:stateCode/counties', async (req, res) => {
+  try {
+    const stateCode = req.params.stateCode.toUpperCase();
+    
+    const { data: state, error: stateError } = await supabase
+      .from('states')
+      .select('id')
+      .eq('code', stateCode)
+      .single();
+
+    if (stateError || !state) {
+      return res.status(404).json({ error: 'State not found' });
+    }
+
+    const { data, error } = await supabase
+      .from('counties')
+      .select('*')
+      .eq('state_id', state.id)
+      .order('name');
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/states/:stateCode/municipalities', async (req, res) => {
+  try {
+    const stateCode = req.params.stateCode.toUpperCase();
+    
+    const { data: state, error: stateError } = await supabase
+      .from('states')
+      .select('id')
+      .eq('code', stateCode)
+      .single();
+
+    if (stateError || !state) {
+      return res.status(404).json({ error: 'State not found' });
+    }
+
+    const { data, error } = await supabase
+      .from('municipalities')
+      .select('*')
+      .eq('state_id', state.id)
+      .order('name');
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/dealers', async (req, res) => {
   try {
     const { data, error } = await supabase

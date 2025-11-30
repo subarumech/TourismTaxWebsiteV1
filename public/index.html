@@ -51,8 +51,7 @@
             color: var(--text-primary);
         }
 
-        .login-form input,
-        .login-form select {
+        .login-form input {
             width: 100%;
             padding: 0.75rem 1rem;
             background: white;
@@ -64,11 +63,143 @@
             transition: all 0.2s ease;
         }
 
-        .login-form input:focus,
-        .login-form select:focus {
+        .login-form input:focus {
             outline: none;
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
+        }
+
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-dropdown.open {
+            z-index: 100;
+        }
+
+        .custom-dropdown-button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .custom-dropdown-button:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .custom-dropdown-button:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
+        }
+
+        .custom-dropdown-button::after {
+            content: '▼';
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+        }
+
+        .custom-dropdown.open .custom-dropdown-button::after {
+            transform: rotate(180deg);
+        }
+
+        .custom-dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 0.25rem;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .custom-dropdown.open .custom-dropdown-options {
+            display: block;
+        }
+
+        .custom-dropdown-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            padding: 0.75rem 2rem 0.75rem 1rem;
+            background: white;
+            border: 1px solid var(--accent-blue);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text-primary);
+            box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
+            display: none;
+        }
+
+        .custom-dropdown-input:focus {
+            outline: none;
+        }
+
+        .custom-dropdown.open .custom-dropdown-input {
+            display: block;
+        }
+
+        .custom-dropdown.open .custom-dropdown-button {
+            visibility: hidden;
+        }
+
+        .custom-dropdown-option.hidden {
+            display: none;
+        }
+
+        .no-results {
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+        }
+
+        .custom-dropdown-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .custom-dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .custom-dropdown-option:hover {
+            background-color: var(--bg-light);
+        }
+
+        .custom-dropdown-option.selected {
+            background-color: var(--blue-light-1);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .custom-dropdown-placeholder {
+            color: var(--text-muted);
         }
 
         .login-form .btn {
@@ -103,17 +234,61 @@
             </div>
 
             <div class="form-group">
+                <label for="state">State</label>
+                <div class="custom-dropdown" id="state-dropdown">
+                    <button type="button" class="custom-dropdown-button" id="state-button" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="custom-dropdown-placeholder">Select your state...</span>
+                    </button>
+                    <input type="text" class="custom-dropdown-input" placeholder="Search states..." autocomplete="off">
+                    <div class="custom-dropdown-options" role="listbox" id="state-options">
+                        <div class="custom-dropdown-option" data-value="FL" role="option">Florida</div>
+                    </div>
+                </div>
+                <input type="hidden" id="state" name="state" required>
+            </div>
+
+            <div class="form-group">
                 <label for="entity-type">Entity Type</label>
-                <select id="entity-type" name="entity-type" required>
-                    <option value="">Select your entity type...</option>
-                    <option value="property-appraiser">Property Appraiser</option>
-                    <option value="tax-collector">Tax Collector</option>
-                    <option value="county-gov">County Government</option>
-                    <option value="city-gov">City Government</option>
-                    <option value="dor">Department of Revenue</option>
-                    <option value="broker">Vacation Rental Broker</option>
-                    <option value="owner">Property Owner</option>
-                </select>
+                <div class="custom-dropdown" id="entity-type-dropdown">
+                    <button type="button" class="custom-dropdown-button" id="entity-type-button" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="custom-dropdown-placeholder">Select your entity type...</span>
+                    </button>
+                    <input type="text" class="custom-dropdown-input" placeholder="Search entity types..." autocomplete="off">
+                    <div class="custom-dropdown-options" role="listbox" id="entity-type-options">
+                        <div class="custom-dropdown-option" data-value="property-appraiser" role="option">Property Appraiser</div>
+                        <div class="custom-dropdown-option" data-value="tax-collector" role="option">Tax Collector</div>
+                        <div class="custom-dropdown-option" data-value="county-gov" role="option">County Government</div>
+                        <div class="custom-dropdown-option" data-value="city-gov" role="option">City Government</div>
+                        <div class="custom-dropdown-option" data-value="dor" role="option">Department of Revenue</div>
+                        <div class="custom-dropdown-option" data-value="broker" role="option">Vacation Rental Broker</div>
+                        <div class="custom-dropdown-option" data-value="owner" role="option">Property Owner</div>
+                    </div>
+                </div>
+                <input type="hidden" id="entity-type" name="entity-type" required>
+            </div>
+
+            <div class="form-group" id="county-group" style="display: none;">
+                <label for="county">County</label>
+                <div class="custom-dropdown" id="county-dropdown">
+                    <button type="button" class="custom-dropdown-button" id="county-button" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="custom-dropdown-placeholder">Select your county...</span>
+                    </button>
+                    <input type="text" class="custom-dropdown-input" placeholder="Search counties..." autocomplete="off">
+                    <div class="custom-dropdown-options" role="listbox" id="county-options"></div>
+                </div>
+                <input type="hidden" id="county" name="county">
+            </div>
+
+            <div class="form-group" id="municipality-group" style="display: none;">
+                <label for="municipality">Municipality</label>
+                <div class="custom-dropdown" id="municipality-dropdown">
+                    <button type="button" class="custom-dropdown-button" id="municipality-button" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="custom-dropdown-placeholder">Select your municipality...</span>
+                    </button>
+                    <input type="text" class="custom-dropdown-input" placeholder="Search municipalities..." autocomplete="off">
+                    <div class="custom-dropdown-options" role="listbox" id="municipality-options"></div>
+                </div>
+                <input type="hidden" id="municipality" name="municipality">
             </div>
 
             <button type="submit" class="btn btn-primary">Login</button>
