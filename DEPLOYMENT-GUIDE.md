@@ -108,7 +108,53 @@ On Synology NAS, you may need to use `sudo` for docker commands. This is normal 
 
 ## Part 2: Deployment Process
 
-### Deployment Scripts
+### Universal Deployment Script (Recommended)
+
+The easiest way to deploy is using the new **universal deployment script** that works on Windows, macOS, and Linux.
+
+#### Windows (PowerShell):
+```powershell
+.\quick-deploy.ps1
+```
+
+#### macOS/Linux:
+```bash
+./universal-deploy.sh
+# or simply:
+./deploy
+```
+
+**Features:**
+- ✅ Automatically detects your OS
+- ✅ Checks for SSH key authentication
+- ✅ Detects passwordless sudo configuration
+- ✅ Provides helpful setup instructions
+- ✅ Syncs files and rebuilds container in one command
+- ✅ Color-coded status messages
+- ✅ Verifies .env file exists on NAS
+
+#### First-Time Setup
+
+1. **Set up SSH keys (one-time):**
+   ```bash
+   ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
+   ssh-copy-id gravy23@192.168.1.74
+   ```
+
+2. **Optional - Configure passwordless sudo (for fully automated deploys):**
+   SSH to NAS and edit sudoers:
+   ```bash
+   ssh gravy23@192.168.1.74
+   sudo visudo
+   ```
+   Add this line:
+   ```
+   gravy23 ALL=(ALL) NOPASSWD: /usr/local/bin/docker-compose
+   ```
+
+After setup, deployments are completely automated!
+
+### Legacy Deployment Scripts
 
 #### Local: `deploy.sh`
 Syncs code from development machine to NAS:

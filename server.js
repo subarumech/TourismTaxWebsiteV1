@@ -659,7 +659,16 @@ app.post('/api/sync', async (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('*', (req, res) => {
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
+  const hasExtension = path.extname(req.path) !== '';
+  if (hasExtension) {
+    return next();
+  }
+  
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

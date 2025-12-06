@@ -69,6 +69,32 @@ body {
 
 .header-branding {
     display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-logo-container {
+    background: white;
+    border-radius: 18px;
+    padding: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.header-logo {
+    height: 75px !important;
+    width: auto !important;
+    max-width: 300px !important;
+    max-height: 75px !important;
+    display: block;
+    object-fit: contain;
+}
+
+.header-branding-text {
+    display: flex;
     flex-direction: column;
     gap: 0.25rem;
 }
@@ -759,6 +785,21 @@ code {
     .footer-container {
         padding-left: 1rem;
         padding-right: 1rem;
+    }
+    
+    .header-logo-container {
+        padding: 4px;
+        border-radius: 15px;
+    }
+    
+    .header-logo {
+        height: 60px !important;
+        max-width: 225px !important;
+        max-height: 60px !important;
+    }
+    
+    .header-branding {
+        flex-wrap: wrap;
     }
     
     .nav-links {

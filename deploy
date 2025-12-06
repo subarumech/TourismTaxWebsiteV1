@@ -1,0 +1,15 @@
+#!/bin/bash
+# Universal Deployment Wrapper for Mac/Linux
+# On Windows with PowerShell, use: .\quick-deploy.ps1
+# On Windows with Git Bash, use: ./deploy (this script)
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+echo "==========================================="
+echo "Universal Deploy (Mac/Linux)"
+echo "==========================================="
+echo ""
+
+./universal-deploy.sh
+

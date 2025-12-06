@@ -1,3 +1,0 @@
-# This file is not used for deployment (using Docker + Cloudflare instead)
-# The netlify/ folder is kept only for shared function libraries used by server.js
-

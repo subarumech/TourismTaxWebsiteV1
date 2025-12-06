@@ -320,8 +320,8 @@ CREATE INDEX idx_buildings_parcel ON buildings(parcel_id);
 
 ## API Integration
 
-### Netlify Functions
-Location: `netlify/functions/properties.js`
+### Express Server API
+Location: `server.js`
 
 **Enhanced Endpoints:**
 - `GET /api/properties/:id` - Now includes sales, buildings, land, values, exemptions
